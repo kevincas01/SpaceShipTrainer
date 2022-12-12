@@ -1,9 +1,9 @@
 {
-  "name": "lower-case-dashed-name-of-project",
-  "repository": "REPOSITORY-NAME-AS-IT-APPEARS-IN-GITHUB-URL",
+  "name": "spaceship_trainer",
+  "repository": "https://github.com/kevincas01/COS426-FinalProject.git",
   "version": "0.1.0",
-  "title": "PROJECT TITLE HERE",
-  "description": "SHORT DESCRIPTION OF PROJECT HERE. ONE TO TWO SENTENCES MAX",
+  "title": "Spaceship Trainer",
+  "description": "A small game made using three.js which allows the player to control a spaceship in first-person view and fire at other enemy ships, like a 3D version of space invaders.",
   "keywords": [
     "Princeton",
     "graphics",
@@ -11,9 +11,7 @@
     "COS 426",
     "ivy league",
     "keyword1",
-    "keyword2",
-    "...",
-    "this last entry CANNOT have a comma after it ->"
+    "keyword2"
   ],
   "scripts": {
     "start": "webpack-dev-server --mode development --output-public-path \"\"",
@@ -23,24 +21,24 @@
     "deploy": "npm run prebuild && webpack --mode production --progress && gh-pages -d build"
   },
   "dependencies": {
-    "dat.gui": "^0.7.7",
-    "three": "^0.116.0",
+    "dat.gui": "^0.7.9",
+    "three": "^0.147.0",
     "three-obj-loader": "^1.1.3",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "babel-loader": "^8.1.0",
-    "file-loader": "^6.0.0",
+    "@babel/core": "^7.20.5",
+    "@babel/preset-env": "^7.20.2",
+    "babel-loader": "^8.3.0",
+    "file-loader": "^6.2.0",
     "gh-pages": "^2.2.0",
-    "html-webpack-plugin": "^4.3.0",
+    "html-webpack-plugin": "^4.5.2",
     "mkdirp": "^1.0.4",
-    "prettier": "^2.0.5",
-    "raw-loader": "^4.0.1",
+    "prettier": "^2.8.1",
+    "raw-loader": "^4.0.2",
     "rimraf": "^3.0.2",
-    "webpack": "^4.43.0",
-    "webpack-dev-server": "^3.10.3"
+    "webpack": "^4.46.0",
+    "webpack-dev-server": "^3.11.3"
   },
   "engines": {
     "node": ">=8.0.0"
