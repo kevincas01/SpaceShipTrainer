@@ -53,3 +53,26 @@ const windowResizeHandler = () => {
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
+
+
+const laserSounds = [];  
+
+document.addEventListener("keydown", event => {
+  if (event.key === "s") {
+    const audio = new Audio("./src/components/sounds/laser.mp3"); 
+    laserSounds.push(audio);  
+    audio.play();  
+
+    for (const sound of laserSounds) {
+      sound.play(); //Play all of them
+    }
+
+  }
+});
+
+
+document.addEventListener("keyup", event => {
+    if (event.key === "s") {
+        laserSounds.length = 0;  //Clear
+    }
+  });
