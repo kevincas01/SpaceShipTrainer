@@ -200,10 +200,14 @@ function onMouseDown(){
     if(!mouseIsPressed){
         return;
     }
-    const audio = new Audio("./src/components/sounds/shortLaser.mp3"); 
+    const audio = new Audio("./src/components/sounds/laser.mp3"); 
     laserSounds.push(audio);
 
+    if (laserSounds.length>10){
+        laserSounds.splice(5,5)
+    }
     for (const sound of laserSounds) {
+        
       sound.play(); //Play all of them
     }
 
