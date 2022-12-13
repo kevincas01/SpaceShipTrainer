@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial, Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
+import { BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry} from 'three';
 
 import { test } from 'objects';
 // import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
@@ -86,8 +86,7 @@ const addStars = (texturePath, amount, spriteScale) => {
 
 addStars('src/components/sprites/red.png', 1000, 2);
 addStars('src/components/sprites/white.png', 1000, 5);
-
-
+addStars('src/components/sprites/blue.png',1000,3);
 
 // end code for stars
 
@@ -102,7 +101,6 @@ crosshairSprite.scale.set(chsScale,chsScale,chsScale);
 
 scene.add(crosshairSprite);
 // end code for crosshair
-
 
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
@@ -140,7 +138,8 @@ const yLimit = 20;
 let cameraDirection = new Vector3();
 let crosshairPos = new Vector3();
 
-
+const rays=[]
+const cameraDirs=[]
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     curTime = timeStamp;
@@ -163,6 +162,19 @@ const onAnimationFrameHandler = (timeStamp) => {
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
     ray.at(0.1, crosshairPos);
+    
+
+    for (let i = 0; i < rays.length; i++) {
+        if(rays[i].active){
+            rays[i].position.add(cameraDirs[i].clone().multiplyScalar(.5));
+        }
+        else{
+            rays.splice[i,1]
+            continue
+        }
+      
+    }
+
     crosshairSprite.position.set(crosshairPos.x,crosshairPos.y,crosshairPos.z);
 
 // crosshair code end
@@ -194,30 +206,56 @@ window.addEventListener('resize', windowResizeHandler, false);
 
 
 const laserSounds = [];  
+const redMaterial = new MeshBasicMaterial({color: 0xff0000});
 
-document.addEventListener( 'click', function () {
+let mouseIsPressed=false;
+function onMouseDown(){
 
-    controls.lock();
+    if(!mouseIsPressed){
+        return;
+    }
+    const audio = new Audio("./src/components/sounds/laser.mp3"); 
+    laserSounds.push(audio);
 
     // debugger;
 
     if(controls.isLocked === true){
 
         console.log(cameraDirection);
-        
-
-        const audio = new Audio("./src/components/sounds/laser.mp3"); 
-        laserSounds.push(audio);  
-        audio.play();  
-    
-        for (const sound of laserSounds) {
-          sound.play(); //Play all of them
+        if (laserSounds.length>10){
+            laserSounds.splice(5,5)
         }
-    
+        for (const sound of laserSounds) {
+            
+        sound.play(); //Play all of them
+        }
 
+            var shot=new Mesh(new SphereGeometry(0.2,10,8),redMaterial)
+            shot.position.set(camera.position.x,camera.position.y,camera.position.z)
+            
+            cameraDirs.push(camera.getWorldDirection(new Vector3()))
+
+            shot.active=true
+            setTimeout(()=>{
+                scene.remove(shot);
+                shot.active=false
+            },4000)
+            rays.push(shot)
+            scene.add(shot)
+
+            setTimeout(onMouseDown, 100);
     }
+}
+document.addEventListener( 'mousedown', function(){
+    mouseIsPressed=true;
+    onMouseDown();
+});
 
-} );
+document.addEventListener("mouseup", event => {
+    mouseIsPressed=false;
+    laserSounds.length = 0;  //Clear
+        
+  });
 
 document.addEventListener("keydown", event => {
 
@@ -244,23 +282,14 @@ document.addEventListener("keydown", event => {
             break;
 
         case 'Space':
-            if ( canJump === true ) velocity.y += 350;
-            canJump = false;
+            controls.lock()
+            // if ( canJump === true ) velocity.y += 350;
+            // canJump = false;
             break;
 
     }
 
-
-  if (event.key === "f") {
-    const audio = new Audio("./src/components/sounds/laser.mp3"); 
-    laserSounds.push(audio);  
-    audio.play();  
-
-    for (const sound of laserSounds) {
-      sound.play(); //Play all of them
-    }
-
-  }
+    // debugger;
 });
 
 
@@ -287,14 +316,7 @@ document.addEventListener("keyup", event => {
         case 'KeyD':
             moveRight = false;
             break;
-
     }
 
 });
 
-
-document.addEventListener("keyup", event => {
-    if (event.key === "s") {
-        laserSounds.length = 0;  //Clear
-    }
-  });
