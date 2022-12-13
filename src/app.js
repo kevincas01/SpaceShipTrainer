@@ -6,14 +6,14 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Mesh, WebGLRenderer, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points} from 'three';
+import { BoxBufferGeometry, Mesh, WebGLRenderer, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 
 // Initialize core ThreeJS components
 const scene = new Scene();
-scene.background = new Color(0x202120);
+scene.background = new Color(0x000000);
 const geom = new BoxBufferGeometry(2,2,2);
 const mat = new MeshBasicMaterial();
 const cube = new Mesh(geom, mat);
@@ -138,7 +138,7 @@ const onAnimationFrameHandler = (timeStamp) => {
 
     // controls.update();
     renderer.render(scene, camera);
-    renderer.render(sceneHUD, cameraHUD);
+    // renderer.render(sceneHUD, cameraHUD);
 
     scene.update && scene.update(timeStamp);
     prevTime = curTime;
