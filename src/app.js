@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Mesh, WebGLRenderer, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
+import { BoxBufferGeometry, Mesh, WebGLRenderer, SpriteMaterial, Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
@@ -17,6 +17,7 @@ scene.background = new Color(0x000000);
 const geom = new BoxBufferGeometry(2,2,2);
 const mat = new MeshBasicMaterial();
 const cube = new Mesh(geom, mat);
+cube.position.set(0,2,15);
 
 scene.add(cube);
 
@@ -26,7 +27,7 @@ scene.add(cube);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
-debugger;
+// debugger;
 
 var hudCanvas = document.createElement('canvas');
 hudCanvas.width = width;
@@ -57,44 +58,35 @@ sceneHUD.add( plane );
 
 // end code for hud
 
-let points=[]
+// start code for stars
+let points=[];
+
+let texture=new TextureLoader().load('src/components/stars/red.png');
+
+let spriteMaterial = new SpriteMaterial( { map: texture } );
+let sprite = new Sprite( spriteMaterial );
+const spriteScale = 2;
+sprite.scale.set(spriteScale,spriteScale,spriteScale);
 
 for (let num = 0; num < 3000; num++) {
   let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
   
-  points.push(coords)
+  let pointSprite = sprite.clone();
+  debugger;
+  pointSprite.position.set(coords.x,coords.y,coords.z);
+  scene.add(pointSprite);
+
 }
-let starCoords=  new BufferGeometry().setFromPoints( points )
 
-let texture=new TextureLoader().load('src/components/stars/red.png')
-
-let starMats=new PointsMaterial({size:5,map:texture})
-let brightStars=new Points(starCoords,starMats)
-
-scene.add(brightStars)
-for (let num = 0; num < 3000; num++) {
-  let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
-  
-  points.push(coords)
-}
- starCoords=  new BufferGeometry().setFromPoints( points )
-
- texture=new TextureLoader().load('src/components/stars/white.png')
-
- starMats=new PointsMaterial({size:5,map:texture})
- brightStars=new Points(starCoords,starMats)
-
-scene.add(brightStars)
-
-
+// end code for stars
 
 
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
 
 // Set up camera
-camera.position.set(6, 3, -10);
-camera.lookAt(new Vector3(0, 0, 0));
+camera.position.set(0, 0, 0);
+camera.lookAt(new Vector3(0, 0, 6));
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -163,7 +155,7 @@ document.addEventListener( 'click', function () {
 
     controls.lock();
 
-    debugger;
+    // debugger;
 
     if(controls.isLocked === true){
         
@@ -212,7 +204,7 @@ document.addEventListener("keydown", event => {
 
     }
 
-    debugger;
+    // debugger;
 
   if (event.key === "f") {
     const audio = new Audio("./src/components/sounds/laser.mp3"); 
