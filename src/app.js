@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Mesh, WebGLRenderer, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial } from 'three';
+import { BoxBufferGeometry, Texture, PlaneGeometry, Mesh, WebGLRenderer, OrthographicCamera, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
@@ -14,12 +14,51 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 
 // Initialize core ThreeJS components
 const scene = new Scene();
-scene.background = new Color(0x7ec0ee);
+scene.background = new Color(0x202120);
 const geom = new BoxBufferGeometry(2,2,2);
 const mat = new MeshBasicMaterial();
 const cube = new Mesh(geom, mat);
 
 scene.add(cube);
+
+
+
+// code for hud, mostly from evermade.fi
+
+const width = window.innerWidth;
+const height = window.innerHeight;
+debugger;
+
+var hudCanvas = document.createElement('canvas');
+hudCanvas.width = width;
+hudCanvas.height = height;
+var hudBitmap = hudCanvas.getContext('2d');
+
+hudBitmap.font = "Normal 40px Arial";
+hudBitmap.textAlign = 'center';
+hudBitmap.fillStyle = "rgba(245,245,245,0.75)";
+hudBitmap.fillText('TEST', width / 2, height / 2);
+
+let cameraHUD = new OrthographicCamera(
+    -width/2, width/2,
+    height/2, -height/2,
+    0, 30
+    );
+
+const sceneHUD = new Scene();
+
+var hudTexture = new Texture(hudCanvas)
+hudTexture.needsUpdate = true;
+var material = new MeshBasicMaterial( {map: hudTexture } );
+material.transparent = true;
+
+var planeGeometry = new PlaneGeometry( width, height );
+var plane = new Mesh( planeGeometry, material );
+sceneHUD.add( plane );
+
+
+
+// end code for hud
 
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
@@ -47,6 +86,9 @@ let moveDown = false;
 let moveLeft = false;
 let moveRight = false;
 
+const xLimit = 20;
+const yLimit = 20;
+
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     // debugger;
@@ -56,12 +98,19 @@ const onAnimationFrameHandler = (timeStamp) => {
 
     const playerSpeed = 10;
 
-    camera.position.x += deltaT * playerSpeed * (Number(moveLeft) - Number(moveRight));
-    camera.position.y += deltaT * playerSpeed * (Number(moveUp) - Number(moveDown));
+    const xMovement = deltaT * playerSpeed * (Number(moveLeft) - Number(moveRight));
+    const yMovement = deltaT * playerSpeed * (Number(moveUp) - Number(moveDown));
+
+    if(!(camera.position.x + xMovement > xLimit || camera.position.x + xMovement < -xLimit)) camera.position.x += xMovement;
+    if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
+
+
 
 
     // controls.update();
     renderer.render(scene, camera);
+    renderer.render(sceneHUD, cameraHUD);
+
     scene.update && scene.update(timeStamp);
     prevTime = curTime;
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -84,6 +133,22 @@ const laserSounds = [];
 document.addEventListener( 'click', function () {
 
     controls.lock();
+
+    debugger;
+
+    if(controls.isLocked === true){
+        
+
+        const audio = new Audio("./src/components/sounds/laser.mp3"); 
+        laserSounds.push(audio);  
+        audio.play();  
+    
+        for (const sound of laserSounds) {
+          sound.play(); //Play all of them
+        }
+    
+
+    }
 
 } );
 
