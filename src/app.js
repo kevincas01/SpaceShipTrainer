@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Mesh, WebGLRenderer, SpriteMaterial, Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
+import { BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial, Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
@@ -23,48 +23,54 @@ scene.add(cube);
 
 
 
-// code for hud, mostly from evermade.fi
+// // code for hud, mostly from evermade.fi
 
-const width = window.innerWidth;
-const height = window.innerHeight;
-// debugger;
+// const width = window.innerWidth;
+// const height = window.innerHeight;
+// // debugger;
 
-var hudCanvas = document.createElement('canvas');
-hudCanvas.width = width;
-hudCanvas.height = height;
-var hudBitmap = hudCanvas.getContext('2d');
+// var hudCanvas = document.createElement('canvas');
+// hudCanvas.width = width;
+// hudCanvas.height = height;
+// var hudBitmap = hudCanvas.getContext('2d');
 
-hudBitmap.font = "Normal 40px Arial";
-hudBitmap.textAlign = 'center';
-hudBitmap.fillStyle = "rgba(245,245,245,0.75)";
-hudBitmap.fillText('TEST', width / 2, height / 2);
+// hudBitmap.font = "Normal 40px Arial";
+// hudBitmap.textAlign = 'center';
+// hudBitmap.fillStyle = "rgba(245,245,245,0.75)";
+// hudBitmap.fillText('TEST', width / 2, height / 2);
 
-let cameraHUD = new OrthographicCamera(
-    -width/2, width/2,
-    height/2, -height/2,
-    0, 30
-    );
+// let cameraHUD = new OrthographicCamera(
+//     -width/2, width/2,
+//     height/2, -height/2,
+//     0, 30
+//     );
 
-const sceneHUD = new Scene();
+// const sceneHUD = new Scene();
 
-var hudTexture = new Texture(hudCanvas)
-hudTexture.needsUpdate = true;
-var material = new MeshBasicMaterial( {map: hudTexture } );
-material.transparent = true;
+// var hudTexture = new Texture(hudCanvas)
+// hudTexture.needsUpdate = true;
+// var material = new MeshBasicMaterial( {map: hudTexture } );
+// material.transparent = true;
 
-var planeGeometry = new PlaneGeometry( width, height );
-var plane = new Mesh( planeGeometry, material );
-sceneHUD.add( plane );
+// var planeGeometry = new PlaneGeometry( width, height );
+// var plane = new Mesh( planeGeometry, material );
+// sceneHUD.add( plane );
 
-// end code for hud
+// // end code for hud
 
 // start code for stars
 
-const addStars = (texturePath, amount, spriteScale) => {
+const getSprite = (texturePath) => {
     let texture=new TextureLoader().load(texturePath);
 
     let spriteMaterial = new SpriteMaterial( { map: texture } );
     let sprite = new Sprite( spriteMaterial );
+    return sprite
+};
+
+const addStars = (texturePath, amount, spriteScale) => {
+
+    let sprite = getSprite(texturePath);
     sprite.scale.set(spriteScale,spriteScale,spriteScale);
     
     for (let num = 0; num < amount; num++) {
@@ -77,12 +83,24 @@ const addStars = (texturePath, amount, spriteScale) => {
     }
 };
 
-addStars('src/components/stars/red.png', 1000, 2);
-addStars('src/components/stars/white.png', 1000, 5);
+addStars('src/components/sprites/red.png', 1000, 2);
+addStars('src/components/sprites/white.png', 1000, 5);
 
 
 
 // end code for stars
+
+// start code for crosshair
+
+let crosshairSprite = getSprite('src/components/sprites/green_crosshair.png');
+const chsScale = 0.005;
+crosshairSprite.scale.set(chsScale,chsScale,chsScale);
+
+
+// crosshairSprite.position.set(0,10,10);
+
+scene.add(crosshairSprite);
+// end code for crosshair
 
 
 const camera = new PerspectiveCamera();
@@ -114,6 +132,11 @@ let moveRight = false;
 const xLimit = 20;
 const yLimit = 20;
 
+// let raycaster = new THREE.Raycaster();
+let cameraDirection = new Vector3();
+let crosshairPos = new Vector3();
+
+
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     // debugger;
@@ -129,7 +152,13 @@ const onAnimationFrameHandler = (timeStamp) => {
     if(!(camera.position.x + xMovement > xLimit || camera.position.x + xMovement < -xLimit)) camera.position.x += xMovement;
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
 
+    camera.getWorldDirection(cameraDirection);
+    let ray = new Ray(camera.position, cameraDirection);
+    ray.at(0.1, crosshairPos);
+    
+    // debugger;
 
+    crosshairSprite.position.set(crosshairPos.x,crosshairPos.y,crosshairPos.z);
 
 
     // controls.update();
