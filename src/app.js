@@ -8,7 +8,9 @@
  */
 import { BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial, Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points, Texture, PlaneGeometry, OrthographicCamera} from 'three';
 
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { test } from 'objects';
+// import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+// import { SeedScene } from 'scenes';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 
 // Initialize core ThreeJS components
@@ -17,7 +19,7 @@ scene.background = new Color(0x000000);
 const geom = new BoxBufferGeometry(2,2,2);
 const mat = new MeshBasicMaterial();
 const cube = new Mesh(geom, mat);
-cube.position.set(0,2,15);
+cube.position.set(-15,0,0);
 
 scene.add(cube);
 
@@ -27,7 +29,6 @@ scene.add(cube);
 
 // const width = window.innerWidth;
 // const height = window.innerHeight;
-// // debugger;
 
 // var hudCanvas = document.createElement('canvas');
 // hudCanvas.width = width;
@@ -108,7 +109,7 @@ const renderer = new WebGLRenderer({ antialias: true });
 
 // Set up camera
 camera.position.set(0, 0, 0);
-camera.lookAt(new Vector3(0, 0, 6));
+camera.lookAt(new Vector3(-15, 0, 0));
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -119,7 +120,10 @@ document.body.style.overflow = 'hidden'; // Fix scrolling
 document.body.appendChild(canvas);
 
 // Set up controls
-const controls = new PointerLockControls(camera, canvas);
+// const controls = new PlayerControls(camera, canvas);
+const controls = new test(camera, canvas);
+// test.maxPolarAngle = 1;
+
 // controls.update();
 
 let curTime = 0;
@@ -129,7 +133,7 @@ let moveDown = false;
 let moveLeft = false;
 let moveRight = false;
 
-const xLimit = 20;
+const zLimit = 20;
 const yLimit = 20;
 
 // let raycaster = new THREE.Raycaster();
@@ -139,26 +143,33 @@ let crosshairPos = new Vector3();
 
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
-    // debugger;
     curTime = timeStamp;
 
     let deltaT = (curTime - prevTime)/1000;
 
+// player movement code start
     const playerSpeed = 10;
 
-    const xMovement = deltaT * playerSpeed * (Number(moveLeft) - Number(moveRight));
+    const zMovement = deltaT * playerSpeed * (Number(moveLeft) - Number(moveRight));
     const yMovement = deltaT * playerSpeed * (Number(moveUp) - Number(moveDown));
 
-    if(!(camera.position.x + xMovement > xLimit || camera.position.x + xMovement < -xLimit)) camera.position.x += xMovement;
+    if(!(camera.position.z + zMovement > zLimit || camera.position.z + zMovement < -zLimit)) camera.position.z += zMovement;
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
+
+// player movement code end
+
+// crosshair code start
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
     ray.at(0.1, crosshairPos);
-    
-    // debugger;
-
     crosshairSprite.position.set(crosshairPos.x,crosshairPos.y,crosshairPos.z);
+
+// crosshair code end
+
+// rotation limiting for camera start
+// debugger;
+// rotation limiting end
 
 
     // controls.update();
@@ -191,6 +202,8 @@ document.addEventListener( 'click', function () {
     // debugger;
 
     if(controls.isLocked === true){
+
+        console.log(cameraDirection);
         
 
         const audio = new Audio("./src/components/sounds/laser.mp3"); 
@@ -237,7 +250,6 @@ document.addEventListener("keydown", event => {
 
     }
 
-    // debugger;
 
   if (event.key === "f") {
     const audio = new Audio("./src/components/sounds/laser.mp3"); 

@@ -1,2 +1,0 @@
-// modeled after FirstPersonControls.js
-
