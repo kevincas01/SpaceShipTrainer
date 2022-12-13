@@ -6,9 +6,8 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Texture, PlaneGeometry, Mesh, WebGLRenderer, OrthographicCamera, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { SeedScene } from 'scenes';
+import { BoxBufferGeometry, Mesh, WebGLRenderer, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader,PointsMaterial, Points} from 'three';
+
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 
@@ -56,9 +55,39 @@ var planeGeometry = new PlaneGeometry( width, height );
 var plane = new Mesh( planeGeometry, material );
 sceneHUD.add( plane );
 
-
-
 // end code for hud
+
+let points=[]
+
+for (let num = 0; num < 3000; num++) {
+  let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
+  
+  points.push(coords)
+}
+let starCoords=  new BufferGeometry().setFromPoints( points )
+
+let texture=new TextureLoader().load('src/components/stars/red.png')
+
+let starMats=new PointsMaterial({size:5,map:texture})
+let brightStars=new Points(starCoords,starMats)
+
+scene.add(brightStars)
+for (let num = 0; num < 3000; num++) {
+  let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
+  
+  points.push(coords)
+}
+ starCoords=  new BufferGeometry().setFromPoints( points )
+
+ texture=new TextureLoader().load('src/components/stars/white.png')
+
+ starMats=new PointsMaterial({size:5,map:texture})
+ brightStars=new Points(starCoords,starMats)
+
+scene.add(brightStars)
+
+
+
 
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
