@@ -59,24 +59,28 @@ sceneHUD.add( plane );
 // end code for hud
 
 // start code for stars
-let points=[];
 
-let texture=new TextureLoader().load('src/components/stars/red.png');
+const addStars = (texturePath, amount, spriteScale) => {
+    let texture=new TextureLoader().load(texturePath);
 
-let spriteMaterial = new SpriteMaterial( { map: texture } );
-let sprite = new Sprite( spriteMaterial );
-const spriteScale = 2;
-sprite.scale.set(spriteScale,spriteScale,spriteScale);
+    let spriteMaterial = new SpriteMaterial( { map: texture } );
+    let sprite = new Sprite( spriteMaterial );
+    sprite.scale.set(spriteScale,spriteScale,spriteScale);
+    
+    for (let num = 0; num < amount; num++) {
+      let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
+      
+      let pointSprite = sprite.clone();
+      pointSprite.position.set(coords.x,coords.y,coords.z);
+      scene.add(pointSprite);
+    
+    }
+};
 
-for (let num = 0; num < 3000; num++) {
-  let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
-  
-  let pointSprite = sprite.clone();
-  debugger;
-  pointSprite.position.set(coords.x,coords.y,coords.z);
-  scene.add(pointSprite);
+addStars('src/components/stars/red.png', 1000, 2);
+addStars('src/components/stars/white.png', 1000, 5);
 
-}
+
 
 // end code for stars
 
