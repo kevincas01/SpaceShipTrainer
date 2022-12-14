@@ -28,7 +28,7 @@ scene.background = new Color(0x000000);
 const geom = new BoxBufferGeometry(2,2,2);
 const mat = new MeshBasicMaterial();
 const cube = new Mesh(geom, mat);
-cube.position.set(-15,0,0);
+cube.position.set(490,0,0);
 
 scene.add(cube);
 
@@ -201,14 +201,14 @@ const onAnimationFrameHandler = (timeStamp) => {
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
 
-    if(starsGroupA.position.x > 800 ) starsGroupA.position.x = -500;
-    if(starsGroupB.position.x > 800) starsGroupB.position.x = -500;
+    if(starsGroupA.position.x > 700 ) starsGroupA.position.x = -600;
+    if(starsGroupB.position.x > 700) starsGroupB.position.x = -600;
 
     // camera.position.x=camera.position.x-(spaceshipForwardSpeed * deltaT);
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
-    ray.at(0.1, crosshairPos);
+    ray.at(0.2, crosshairPos);
     
 const raySpeed = 3;
     for (let i = 0; i < rays.length; i++) {
