@@ -90,9 +90,11 @@ if(ray.intersectsBox(shipBox)){
     // debugger;
     if(shipBox.intersectsBox(projectileBox)){
         // debugger;
+        count+=1;
         console.log("SHIP HIT");
         ship.model.clear();
         ship.model.removeFromParent();
+        scene.remove(projectile);
     }
 }
 
@@ -224,13 +226,13 @@ const onAnimationFrameHandler = (timeStamp) => {
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
 
     // player movement code end
-    const spaceshipForwardSpeed = 150;
+    const spaceshipForwardSpeed = 1000;
     starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
 
-    if(starsGroupA.position.x > 700 ) starsGroupA.position.x = -600;
-    if(starsGroupB.position.x > 700) starsGroupB.position.x = -600;
+    if(starsGroupA.position.x > 600 ) starsGroupA.position.x = -600;
+    if(starsGroupB.position.x > 600) starsGroupB.position.x = -600;
 
     // camera.position.x=camera.position.x-(spaceshipForwardSpeed * deltaT);
 
@@ -304,7 +306,7 @@ function onMouseDown(){
 
     if(controls.isLocked === true){
 
-        console.log(starsGroupA.position);
+        // console.log(starsGroupA.position);
         if (laserSounds.length>10){
             laserSounds.splice(5,6)
         }
@@ -334,7 +336,6 @@ function onMouseDown(){
 
             setTimeout(onMouseDown, 100);
 
-            count+=1
 
     }
 
