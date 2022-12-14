@@ -93,10 +93,14 @@ const addStars = (texturePath, amount, spriteScale) => {
     for (let num = 0; num < amount; num++) {
       let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
       
-      let pointSprite = sprite.clone();
-      pointSprite.position.set(coords.x,coords.y,coords.z);
+      const centerStarlessRadius = 50;
+      // make sure stars don't get too close to area ship will be in
+      if(!(Math.sqrt(coords.y ** 2 + coords.z ** 2) < centerStarlessRadius)){
+        let pointSprite = sprite.clone();
+        pointSprite.position.set(coords.x,coords.y,coords.z);
 
-      starsGroupA.add(pointSprite);
+        starsGroupA.add(pointSprite);
+      }
     //   scene.add(pointSprite);
     
     }
