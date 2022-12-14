@@ -14,7 +14,7 @@ To add:
  - Detect collision with ships (for each ray check if it collides with a ship.  If it does check if its projectile is within the ship's hitbox)
  - Make ship type 2 which shoots lasers
 */
-import { AmbientLight,PlaneGeometry, BoxBufferGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry, Group} from 'three';
+import { AmbientLight, Box3,PlaneGeometry, BoxBufferGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry, Group, Sphere} from 'three';
 
 import { test } from 'objects';
 import {ship} from 'objects';
@@ -75,6 +75,30 @@ const addStars = (texturePath, amount, spriteScale) => {
 
     scene.add(starsGroupA);
 };
+
+const checkBlasterCollision = (ray, projectile, ship) => {
+
+if(ship.model.children[0] != undefined){
+const shipBox = new Box3().setFromObject(ship.model.children[0]);
+// const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
+// projectileSphere.position = projectile.position.clone();
+// debugger;
+const projectileBox = new Box3().setFromObject(projectile);
+
+// debugger;
+if(ray.intersectsBox(shipBox)){
+    // debugger;
+    if(shipBox.intersectsBox(projectileBox)){
+        // debugger;
+        console.log("SHIP HIT");
+        ship.model.clear();
+        ship.model.removeFromParent();
+    }
+}
+
+}
+
+}
 
 addStars('src/components/sprites/red.png', 1000, 2);
 addStars('src/components/sprites/white.png', 1000, 5);
@@ -170,8 +194,9 @@ const yLimit = 20;
 let cameraDirection = new Vector3();
 let crosshairPos = new Vector3();
 
-const rays=[]
-const cameraDirs=[]
+const projectiles=[];
+const rays =[];
+const cameraDirs=[];
 // Render loop
 
 const testShip = new ship(scene);
@@ -181,7 +206,10 @@ const onAnimationFrameHandler = (timeStamp) => {
     curTime = timeStamp;
     // debugger;
     let a = testShip;
-    if(testShip != undefined && testShip.model != undefined) testShip.model.position.set(-10,3,3);
+    if(testShip != undefined && testShip.model != undefined){
+        testShip.model.position.set(480,3,3);
+        // debugger;
+    } 
 
 
     let deltaT = (curTime - prevTime)/1000;
@@ -210,14 +238,17 @@ const onAnimationFrameHandler = (timeStamp) => {
     let ray = new Ray(camera.position, cameraDirection);
     ray.at(0.2, crosshairPos);
     
-const raySpeed = 3;
-    for (let i = 0; i < rays.length; i++) {
-        if(rays[i].active){
-            rays[i].position.add(cameraDirs[i].clone().multiplyScalar(raySpeed));
+const projectileSpeed = 3;
+    for (let i = 0; i < projectiles.length; i++) {
+        if(projectiles[i].active){
+
+            projectiles[i].position.add(rays[i].direction.clone().multiplyScalar(projectileSpeed));
+            // projectiles[i].position.add(cameraDirs[i].clone().multiplyScalar(raySpeed));
+            checkBlasterCollision(rays[i], projectiles[i], testShip);
         }
         else{
-            rays.splice[i,1]
-            continue
+            projectiles.splice[i,1];
+            continue;
         }
       
     }
@@ -282,17 +313,23 @@ function onMouseDown(){
             sound.play(); //Play all of them
         }
 
-            var shot=new Mesh(new SphereGeometry(0.2,10,8),redMaterial)
-            shot.position.set(camera.position.x,camera.position.y,camera.position.z)
+        const projectileRadius = 0.2;
+            var shot=new Mesh(new SphereGeometry(projectileRadius,10,8),redMaterial);
+            shot.position.set(camera.position.x,camera.position.y,camera.position.z);
             
-            cameraDirs.push(camera.getWorldDirection(new Vector3()))
+            cameraDirs.push(camera.getWorldDirection(new Vector3()));
+
+            rays.push(new Ray(camera.position, camera.getWorldDirection(new Vector3())));
 
             shot.active=true
             setTimeout(()=>{
                 scene.remove(shot);
                 shot.active=false
             },4000)
-            rays.push(shot)
+            shot.geometry.boundingSphere = new Sphere();
+            // shot.geometry.boundingSphere.center = new Vector3(camera.position.x,camera.position.y,camera.position.z);
+            shot.geometry.boundingSphere.radius = projectileRadius;
+            projectiles.push(shot)
             scene.add(shot)
 
             setTimeout(onMouseDown, 100);
