@@ -177,10 +177,10 @@ const onAnimationFrameHandler = (timeStamp) => {
     let ray = new Ray(camera.position, cameraDirection);
     ray.at(0.1, crosshairPos);
     
-
+const raySpeed = 3;
     for (let i = 0; i < rays.length; i++) {
         if(rays[i].active){
-            rays[i].position.add(cameraDirs[i].clone().multiplyScalar(.5));
+            rays[i].position.add(cameraDirs[i].clone().multiplyScalar(raySpeed));
         }
         else{
             rays.splice[i,1]
