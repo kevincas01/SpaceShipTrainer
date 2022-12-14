@@ -59,7 +59,7 @@ class test extends EventDispatcher {
 
             sp.setFromVector3(cameraDirection);
             const theta = sp.theta;
-            console.log(theta);
+            // console.log(theta);
             const thetaMax = 1;
             const thetaMin = -1;
             // debugger;

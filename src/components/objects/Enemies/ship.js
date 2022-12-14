@@ -13,7 +13,7 @@ class ship extends Object3D {
     constructor(scene){
         // super(geometry, material);
         super();
-        debugger;
+        // debugger;
 
         this.model = undefined;
 
@@ -28,7 +28,7 @@ class ship extends Object3D {
             // called when the resource is loaded
             function ( gltf ) {
 
-                debugger;
+                // debugger;
 
                 scene.add( gltf.scene );
 

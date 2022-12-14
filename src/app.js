@@ -6,7 +6,15 @@
  * handles window resizes.
  *
  */
-import { AmbientLight, BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry} from 'three';
+
+/*
+To add:
+ - Make movement based around stars moving towards player character, with starfield copying itself at halfway point and creating a second one, deleting the first one after it passes
+ - Get ships to move in pattern in waves
+ - Detect collision with ships (for each ray check if it collides with a ship.  If it does check if its projectile is within the ship's hitbox)
+ - Make ship type 2 which shoots lasers
+*/
+import { AmbientLight, BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry, Group} from 'three';
 
 import { test } from 'objects';
 import {ship} from 'objects';
@@ -65,6 +73,9 @@ scene.add( light );
 
 // start code for stars
 
+
+const starsGroupA = new Group();
+
 const getSprite = (texturePath) => {
     let texture=new TextureLoader().load(texturePath);
 
@@ -84,14 +95,22 @@ const addStars = (texturePath, amount, spriteScale) => {
       
       let pointSprite = sprite.clone();
       pointSprite.position.set(coords.x,coords.y,coords.z);
-      scene.add(pointSprite);
+
+      starsGroupA.add(pointSprite);
+    //   scene.add(pointSprite);
     
     }
+
+    scene.add(starsGroupA);
 };
 
 addStars('src/components/sprites/red.png', 1000, 2);
 addStars('src/components/sprites/white.png', 1000, 5);
 addStars('src/components/sprites/blue.png',1000,3);
+
+const starsGroupB = starsGroupA.clone();
+scene.add(starsGroupB);
+starsGroupB.position.x = -600;
 
 // end code for stars
 
@@ -107,7 +126,8 @@ crosshairSprite.scale.set(chsScale,chsScale,chsScale);
 scene.add(crosshairSprite);
 // end code for crosshair
 
-const camera = new PerspectiveCamera();
+const camera = new PerspectiveCamera(50, 1, 0.1, 800);
+debugger;
 const renderer = new WebGLRenderer({ antialias: true });
 const canvas = renderer.domElement;
 
@@ -152,7 +172,7 @@ const testShip = new ship(scene);
 
 const onAnimationFrameHandler = (timeStamp) => {
     curTime = timeStamp;
-    debugger;
+    // debugger;
     let a = testShip;
     if(testShip != undefined && testShip.model != undefined) testShip.model.position.set(-10,3,3);
 
@@ -160,16 +180,24 @@ const onAnimationFrameHandler = (timeStamp) => {
     let deltaT = (curTime - prevTime)/1000;
 
     // player movement code start
-    const playerSpeed = 10;
+    const playerStrafeSpeed = 10;
 
-    const zMovement = deltaT * playerSpeed * (Number(moveLeft) - Number(moveRight));
-    const yMovement = deltaT * playerSpeed * (Number(moveUp) - Number(moveDown));
+    const zMovement = deltaT * playerStrafeSpeed * (Number(moveLeft) - Number(moveRight));
+    const yMovement = deltaT * playerStrafeSpeed * (Number(moveUp) - Number(moveDown));
 
     if(!(camera.position.z + zMovement > zLimit || camera.position.z + zMovement < -zLimit)) camera.position.z += zMovement;
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
 
     // player movement code end
-    camera.position.x=camera.position.x-0.1;
+    const spaceshipForwardSpeed = 150;
+    starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
+    starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
+
+
+    if(starsGroupA.position.x > 800 ) starsGroupA.position.x = -500;
+    if(starsGroupB.position.x > 800) starsGroupB.position.x = -500;
+
+    // camera.position.x=camera.position.x-(spaceshipForwardSpeed * deltaT);
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
@@ -194,7 +222,6 @@ const raySpeed = 3;
 // crosshair code end
 
 // rotation limiting for camera start
-// debugger;
 // rotation limiting end
 
 
@@ -233,11 +260,9 @@ function onMouseDown(){
     const audio = new Audio("./src/components/sounds/shortLaser.mp3"); 
     laserSounds.push(audio);
 
-    // debugger;
-
     if(controls.isLocked === true){
 
-        console.log(cameraDirection);
+        console.log(starsGroupA.position);
         if (laserSounds.length>10){
             laserSounds.splice(5,6)
         }
@@ -305,7 +330,6 @@ document.addEventListener("keydown", event => {
 
     }
 
-    // debugger;
 });
 
 
