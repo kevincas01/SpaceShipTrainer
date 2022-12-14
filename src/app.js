@@ -6,9 +6,10 @@
  * handles window resizes.
  *
  */
-import { BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry} from 'three';
+import { AmbientLight, BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry} from 'three';
 
 import { test } from 'objects';
+import {ship} from 'objects';
 // import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 // import { SeedScene } from 'scenes';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
@@ -22,6 +23,9 @@ const cube = new Mesh(geom, mat);
 cube.position.set(-15,0,0);
 
 scene.add(cube);
+
+const light = new AmbientLight( 0x909090 ); // soft white light
+scene.add( light );
 
 
 
@@ -141,8 +145,16 @@ let crosshairPos = new Vector3();
 const rays=[]
 const cameraDirs=[]
 // Render loop
+
+const testShip = new ship(scene);
+
+
 const onAnimationFrameHandler = (timeStamp) => {
     curTime = timeStamp;
+    debugger;
+    let a = testShip;
+    if(testShip != undefined && testShip.model != undefined) testShip.model.position.set(-10,3,3);
+
 
     let deltaT = (curTime - prevTime)/1000;
 
@@ -157,7 +169,6 @@ const onAnimationFrameHandler = (timeStamp) => {
 
 // player movement code end
 
-// crosshair code start
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
@@ -174,6 +185,8 @@ const onAnimationFrameHandler = (timeStamp) => {
         }
       
     }
+
+// crosshair code start
 
     crosshairSprite.position.set(crosshairPos.x,crosshairPos.y,crosshairPos.z);
 
