@@ -78,6 +78,7 @@ const addStars = (texturePath, amount, spriteScale) => {
     let sprite = getSprite(texturePath);
     sprite.scale.set(spriteScale,spriteScale,spriteScale);
     
+    
     for (let num = 0; num < amount; num++) {
       let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
       
@@ -108,14 +109,15 @@ scene.add(crosshairSprite);
 
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
+const canvas = renderer.domElement;
 
 // Set up camera
-camera.position.set(0, 0, 0);
+camera.position.set(500, 0, 0);
 camera.lookAt(new Vector3(-15, 0, 0));
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
-const canvas = renderer.domElement;
+
 canvas.style.display = 'block'; // Removes padding below canvas
 document.body.style.margin = 0; // Removes margin around page
 document.body.style.overflow = 'hidden'; // Fix scrolling
@@ -148,7 +150,6 @@ const cameraDirs=[]
 
 const testShip = new ship(scene);
 
-
 const onAnimationFrameHandler = (timeStamp) => {
     curTime = timeStamp;
     debugger;
@@ -158,7 +159,7 @@ const onAnimationFrameHandler = (timeStamp) => {
 
     let deltaT = (curTime - prevTime)/1000;
 
-// player movement code start
+    // player movement code start
     const playerSpeed = 10;
 
     const zMovement = deltaT * playerSpeed * (Number(moveLeft) - Number(moveRight));
@@ -167,8 +168,8 @@ const onAnimationFrameHandler = (timeStamp) => {
     if(!(camera.position.z + zMovement > zLimit || camera.position.z + zMovement < -zLimit)) camera.position.z += zMovement;
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
 
-// player movement code end
-
+    // player movement code end
+    camera.position.x=camera.position.x-0.1;
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
@@ -221,13 +222,15 @@ window.addEventListener('resize', windowResizeHandler, false);
 const laserSounds = [];  
 const redMaterial = new MeshBasicMaterial({color: 0xff0000});
 
+
+
 let mouseIsPressed=false;
 function onMouseDown(){
 
     if(!mouseIsPressed){
         return;
     }
-    const audio = new Audio("./src/components/sounds/laser.mp3"); 
+    const audio = new Audio("./src/components/sounds/shortLaser.mp3"); 
     laserSounds.push(audio);
 
     // debugger;
@@ -236,11 +239,11 @@ function onMouseDown(){
 
         console.log(cameraDirection);
         if (laserSounds.length>10){
-            laserSounds.splice(5,5)
+            laserSounds.splice(5,6)
         }
         for (const sound of laserSounds) {
             
-        sound.play(); //Play all of them
+            sound.play(); //Play all of them
         }
 
             var shot=new Mesh(new SphereGeometry(0.2,10,8),redMaterial)
@@ -329,6 +332,9 @@ document.addEventListener("keyup", event => {
         case 'KeyD':
             moveRight = false;
             break;
+
+    
+
     }
 
 });
