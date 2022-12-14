@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { AmbientLight, BoxBufferGeometry, Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry} from 'three';
+import { AmbientLight,PlaneGeometry, BoxBufferGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry} from 'three';
 
 import { test } from 'objects';
 import {ship} from 'objects';
@@ -28,43 +28,10 @@ const light = new AmbientLight( 0x909090 ); // soft white light
 scene.add( light );
 
 
+// code for hud, mostly from evermade.fi
 
-// // code for hud, mostly from evermade.fi
-
-// const width = window.innerWidth;
-// const height = window.innerHeight;
-
-// var hudCanvas = document.createElement('canvas');
-// hudCanvas.width = width;
-// hudCanvas.height = height;
-// var hudBitmap = hudCanvas.getContext('2d');
-
-// hudBitmap.font = "Normal 40px Arial";
-// hudBitmap.textAlign = 'center';
-// hudBitmap.fillStyle = "rgba(245,245,245,0.75)";
-// hudBitmap.fillText('TEST', width / 2, height / 2);
-
-// let cameraHUD = new OrthographicCamera(
-//     -width/2, width/2,
-//     height/2, -height/2,
-//     0, 30
-//     );
-
-// const sceneHUD = new Scene();
-
-// var hudTexture = new Texture(hudCanvas)
-// hudTexture.needsUpdate = true;
-// var material = new MeshBasicMaterial( {map: hudTexture } );
-// material.transparent = true;
-
-// var planeGeometry = new PlaneGeometry( width, height );
-// var plane = new Mesh( planeGeometry, material );
-// sceneHUD.add( plane );
-
-// // end code for hud
 
 // start code for stars
-
 const getSprite = (texturePath) => {
     let texture=new TextureLoader().load(texturePath);
 
@@ -92,24 +59,58 @@ const addStars = (texturePath, amount, spriteScale) => {
 addStars('src/components/sprites/red.png', 1000, 2);
 addStars('src/components/sprites/white.png', 1000, 5);
 addStars('src/components/sprites/blue.png',1000,3);
-
 // end code for stars
 
-// start code for crosshair
 
+// start code for crosshair
 let crosshairSprite = getSprite('src/components/sprites/green_crosshair.png');
 const chsScale = 0.005;
 crosshairSprite.scale.set(chsScale,chsScale,chsScale);
-
 
 // crosshairSprite.position.set(0,10,10);
 
 scene.add(crosshairSprite);
 // end code for crosshair
 
+const width = window.innerWidth;
+const height = window.innerHeight/10;
+// var hudCanvas = document.createElement('canvas');
+// document.body.appendChild(hudCanvas);
+// hudCanvas.width = width;
+// hudCanvas.height = height;
+// hudCanvas.id="canvasHUD"
+
+
+
 const camera = new PerspectiveCamera();
-const renderer = new WebGLRenderer({ antialias: true });
+const renderer = new WebGLRenderer({antialias: true });
+renderer.setSize( width, height );
+renderer.autoClear = false;
 const canvas = renderer.domElement;
+
+var hudCanvas = document.createElement('canvas');
+hudCanvas.width = width;
+hudCanvas.height = height*5;
+
+var hudBitmap = hudCanvas.getContext('2d');
+hudBitmap.font = "Normal 50px Arial";
+hudBitmap.textAlign = 'center';
+hudBitmap.fillStyle = "Purple";
+hudBitmap.fillText('Score: 0', width/2 , height/2 );
+
+var cameraHUD = new OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 10 );
+
+var sceneHUD = new Scene();
+
+var hudTexture = new Texture(hudCanvas) 
+hudTexture.needsUpdate = true
+
+var material = new MeshBasicMaterial( {map: hudTexture} );
+material.transparent = true;
+
+var planeGeometry = new PlaneGeometry( width, height );
+var plane = new Mesh( planeGeometry, material );
+sceneHUD.add( plane );
 
 // Set up camera
 camera.position.set(500, 0, 0);
@@ -151,6 +152,7 @@ const cameraDirs=[]
 const testShip = new ship(scene);
 
 const onAnimationFrameHandler = (timeStamp) => {
+
     curTime = timeStamp;
     debugger;
     let a = testShip;
@@ -196,11 +198,14 @@ const onAnimationFrameHandler = (timeStamp) => {
 // rotation limiting for camera start
 // debugger;
 // rotation limiting end
-
+    hudBitmap.clearRect(0, 0, width, height);
+    hudBitmap.fillText("Score: "+count , width / 2, height / 2);
+    hudTexture.needsUpdate = true;
 
     // controls.update();
     renderer.render(scene, camera);
-    // renderer.render(sceneHUD, cameraHUD);
+
+    renderer.render(sceneHUD, cameraHUD);
 
     scene.update && scene.update(timeStamp);
     prevTime = curTime;
@@ -225,6 +230,7 @@ const redMaterial = new MeshBasicMaterial({color: 0xff0000});
 
 
 let mouseIsPressed=false;
+let count=0;
 function onMouseDown(){
 
     if(!mouseIsPressed){
@@ -260,7 +266,11 @@ function onMouseDown(){
             scene.add(shot)
 
             setTimeout(onMouseDown, 100);
+
+            count+=1
+
     }
+
 }
 document.addEventListener( 'mousedown', function(){
     mouseIsPressed=true;
