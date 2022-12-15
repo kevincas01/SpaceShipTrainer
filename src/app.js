@@ -79,27 +79,27 @@ const addStars = (texturePath, amount, spriteScale) => {
 
 const checkBlasterCollision = (ray, projectile, ship) => {
 
-if(ship != undefined){
-const shipBox = new Box3().setFromObject(ship);
-// const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
-// projectileSphere.position = projectile.position.clone();
-// debugger;
-const projectileBox = new Box3().setFromObject(projectile);
-
-// debugger;
-if(ray.intersectsBox(shipBox)){
+    if(ship != undefined){
+    const shipBox = new Box3().setFromObject(ship);
+    // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
+    // projectileSphere.position = projectile.position.clone();
     // debugger;
-    if(shipBox.intersectsBox(projectileBox)){
-        // debugger;
-        count+=1;
-        console.log("SHIP HIT");
-        ship.clear();
-        ship.removeFromParent();
-        scene.remove(projectile);
-    }
-}
+    const projectileBox = new Box3().setFromObject(projectile);
 
-}
+// debugger;
+        if(ray.intersectsBox(shipBox)){
+            // debugger;
+            if(shipBox.intersectsBox(projectileBox)){
+                // debugger;
+                count+=1;
+                console.log("SHIP HIT");
+                ship.clear();
+                ship.removeFromParent();
+                scene.remove(projectile);
+            }
+        }
+
+    }
 
 }
 
