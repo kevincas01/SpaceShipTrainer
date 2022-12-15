@@ -222,42 +222,108 @@ const rays =[];
 const cameraDirs=[];
 // Render loop
 
+
+const redShips = new Group();
+const yellowShips = new Group();
+const greenShips = new Group();
+
 const ships = new Group();
+ships.add(redShips);
+ships.add(yellowShips);
+ships.add(greenShips);
+
+const shipCollections = [redShips, yellowShips, greenShips];
+
 let shipsRendered = false;
 // making row of ships
 
 
-const testShip = new Ship();
-testShip.loadModel();
+const redShip = new Ship();
+redShip.loadModel('./src/components/models/ship1.glb');
+
+const yellowShip = new Ship();
+yellowShip.loadModel('./src/components/models/ship2.glb');
+
+const greenShip = new Ship();
+greenShip.loadModel('./src/components/models/ship3.glb');
+
+
+
+const shipTypes = [redShip, yellowShip, greenShip];
 
 // path for ships to follow
 
 const shipPath = new CurvePath();
 let fractionEnemyMovement = 0;
 
+const originalShipSpawnRate = 2;
+let curShipSpawnRate = originalShipSpawnRate;  // one ship spawns every 3 seconds
+
 const onAnimationFrameHandler = (timeStamp) => {
+    
 
     curTime = timeStamp;
-    let a = testShip;
-    if(testShip.geometry.index != undefined && shipsRendered == false){
+    // ship spawning code (spawns a ship every X seconds)
+    if(curTime/1000 > curShipSpawnRate){
+        curShipSpawnRate += originalShipSpawnRate;
+        // console.log("5 SECONDS PASSED");
+
+        if(shipsRendered){
+
+            const shipsPerSpawn = 2;
+            for (let i = 0; i < shipsPerSpawn; i++){
+
+            
+
+                const shipTypeInd = Math.floor(Math.random() * 3);
+
+                
+                const newShip = shipTypes[shipTypeInd].clone();
+                newShip.position.z += Math.ceil(((2*Math.random())-1)*(zLimit));
+                newShip.position.y = Math.ceil(((2*Math.random())-1)*(yLimit));
+                newShip.position.x = 0;
+                newShip.movementOffset = Math.random() * 2 * PI;
+                newShip.rotateY(-PI/2);
+
+                // rotate yellow ships more
+                if(shipTypeInd == 1){
+                    newShip.rotateZ(-PI/2);
+                    newShip.rotateX(-PI/2);
+                }
+
+
+                newShip.creationTime = curTime;
+
+                // newShip.rotateY(-PI/2);
+
+                shipCollections[shipTypeInd].add(newShip);
+            }
+
+        }
+
+    }
+
+    if(redShip.geometry.index != undefined && yellowShip.geometry.index != undefined && greenShip.geometry.index != undefined && shipsRendered == false){
 
         // debugger;
 
-        for(let i = 0; i < 10; i++){
-            // debugger;
-            const newShip = testShip.clone();
-            newShip.position.z += i * 8;
-            newShip.position.y = Math.ceil(((2*Math.random())-1)*60);
-            newShip.rotateY(-PI/2);
-            ships.add(newShip);
-        }
-        // testShip.position.set(480,3,3);
-        // scene.add(testShip);
-        ships.position.set(300,0,-30);
+  
+
+        // for(let i = 0; i < 10; i++){
+        //     // debugger;
+        //     const newShip = redShip.clone();
+        //     newShip.position.z += i * 8;
+        //     newShip.position.y = Math.ceil(((2*Math.random())-1)*60);
+        //     newShip.rotateY(-PI/2);
+        //     ships.add(newShip);
+        // }
+        // // redShip.position.set(480,3,3);
+        // // scene.add(redShip);
+        // ships.position.set(100,0,-30);
         scene.add(ships);
 
-        const path1 = new LineCurve3(ships.position.clone(), new Vector3(600,ships.position.y,ships.position.z));
-        shipPath.add(path1);
+        // const path1 = new LineCurve3(ships.position.clone(), new Vector3(600,ships.position.y,ships.position.z));
+        // shipPath.add(path1);
         shipsRendered = true;
 
     } 
@@ -301,7 +367,9 @@ const onAnimationFrameHandler = (timeStamp) => {
             if(shipsRendered){
                 for(let j = 0; j < ships.children.length; j++){
                     debugger;
-                    checkBlasterCollision(rays[i], projectiles[i], ships.children[j]);
+                    for(let k = 0; k < ships.children[j].children.length; k++){
+                        checkBlasterCollision(rays[i], projectiles[i], ships.children[j].children[k]);
+                    }
 
 
                 }
@@ -315,16 +383,55 @@ const onAnimationFrameHandler = (timeStamp) => {
     }
 
     // move ships forward
-    if(shipsRendered && fractionEnemyMovement < 1){
-
-        const enemySpeed = 100;
-        const newPosition = shipPath.getPoint(fractionEnemyMovement);
-        debugger;
-        ships.position.copy(newPosition);
-        fractionEnemyMovement += enemySpeed * deltaT *0.001;
 
 
-    }
+    if(shipsRendered){
+        for(let j = 0; j < ships.children.length; j++){
+            // debugger;
+            for(let k = 0; k < ships.children[j].children.length; k++){
+                const enemySpeed = 30;
+
+                let curShip = ships.children[j].children[k];
+                curShip.position.x += enemySpeed * deltaT;
+
+                // delete curShip
+                if(curShip.position.x > 800){
+                    ships.children[j].remove(curShip);
+                    curShip.clear();
+                }
+
+                
+                
+                if(j == 1){
+                    curShip.position.z += 0.1 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
+
+                    debugger;
+                }
+
+                if(j == 2){
+                    curShip.position.y += 0.1 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
+                    curShip.position.z += 0.1 * Math.cos(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
+                    debugger;
+                }
+
+            }
+
+
+        }
+}
+
+
+
+    // if(shipsRendered && fractionEnemyMovement < 1){
+
+    //     const enemySpeed = 100;
+    //     const newPosition = shipPath.getPoint(fractionEnemyMovement);
+    //     // debugger;
+    //     ships.position.copy(newPosition);
+    //     fractionEnemyMovement += enemySpeed * deltaT *0.001;
+
+
+    // }
 
 // crosshair code start
 

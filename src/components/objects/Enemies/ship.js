@@ -16,20 +16,22 @@ class Ship extends Mesh {
         // debugger;
 
         let thisShip = this;
+        thisShip.creationTime = undefined;
+        thisShip.movementOffset = undefined;
         // thisShip = undefined;
 
         // Load a glTF resource
 
 
-        this.loadModel = function () {
+        this.loadModel = function (modelPath) {
             const loader = new GLTFLoader();
             loader.load(
                 // resource URL
-                './src/components/models/ship1.glb',
+                modelPath,
                 // called when the resource is loaded
                 function ( gltf ) {
     
-                    debugger;
+                    // debugger;
     
                     thisShip.copy(gltf.scene.children[0]);
     
