@@ -18,222 +18,288 @@ import { AmbientLight, Box3,PlaneGeometry, BoxBufferGeometry, OrthographicCamera
 
 import { test } from 'objects';
 import {Ship} from 'objects';
-// import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-
-// import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
-
-const PI = 3.1415;
-// Initialize core ThreeJS components
-const scene = new Scene();
-scene.background = new Color(0x000000);
-// const geom = new BoxBufferGeometry(2,2,2);
-// const mat = new MeshBasicMaterial();
-// const cube = new Mesh(geom, mat);
-// cube.position.set(490,0,0);
-
-// scene.add(cube);
-
-const light = new AmbientLight( 0x909090 ); // soft white light
-scene.add( light );
 
 
-// start code for stars
+// create a div element
+var div = document.createElement("div");
 
-const starsGroupA = new Group();
+div.style.width="100vh"
+div.style.width="100vw"
+document.body.style.backgroundImage = "url(./src/components/sprites/space.jpg)";
+document.body.style.backgroundSize = "cover";
+document.body.style.backgroundRepeat = "no-repeat";
+document.body.style.padding="0"
+document.body.style.margin="0"
+document.body.style.backgroundColor="black"
 
-const getSprite = (texturePath) => {
-    let texture=new TextureLoader().load(texturePath);
+var div2 = document.createElement("div");
+var header=document.createElement("h1");
+header.id="titleHeader"
+header.innerHTML="SpaceShip Trainer"
+header.style.fontSize = "150px";
+header.style.color="black"
 
-    let spriteMaterial = new SpriteMaterial( { map: texture } );
-    let sprite = new Sprite( spriteMaterial );
-    return sprite
-};
+div2.append(header)
+// create a button element
 
-const addStars = (texturePath, amount, spriteScale) => {
-
-    let sprite = getSprite(texturePath);
-    sprite.scale.set(spriteScale,spriteScale,spriteScale);
-    
-    
-    for (let num = 0; num < amount; num++) {
-      let coords=new Vector3(Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300),Math.ceil(Math.random()*600-300));
-      
-      const centerStarlessRadius = 50;
-      // make sure stars don't get too close to area ship will be in
-      if(!(Math.sqrt(coords.y ** 2 + coords.z ** 2) < centerStarlessRadius)){
-        let pointSprite = sprite.clone();
-        pointSprite.position.set(coords.x,coords.y,coords.z);
-
-        starsGroupA.add(pointSprite);
-      }
-    //   scene.add(pointSprite);
-    
-    }
-
-    scene.add(starsGroupA);
-};
+var button = document.createElement("div");
+button.textContent="center"
+button.id="beginButton"
+button.style.display="block"
+button.style.padding="10px"
+button.style.borderRadius="10px"
+button.style.backgroundColor="purple"
+button.style.width="25%"
+button.style.fontSize = "75px";
+// set the button's text
+button.innerHTML = "Begin";
 
 
+div2.style.alignItems = "center";
+div2.style.justifyContent = "center";
+// add the button to the div
+div2.appendChild(button);
+div.appendChild(div2)
 
-const starsGroupB = starsGroupA.clone();
-scene.add(starsGroupB);
-starsGroupB.position.x = -100;
+// center the button vertically and horizontally within the div
+div.style.display = "flex";
+div.style.alignItems = "center";
+div.style.justifyContent = "center";
 
-addStars('src/components/sprites/red.png', 1000, 2);
-addStars('src/components/sprites/white.png', 1000, 5);
-addStars('src/components/sprites/blue.png',1000,3);
+// add the div to the page
+document.body.appendChild(div);
 
-// end code for stars
+var sceneBool=false;
+var scene;
+var starsGroupA;
+var starsGroupB;
 
+var camera;
+var renderer;
+var controls;
 
-const checkBlasterCollision = (ray, projectile, ship) => {
-
-
-    if(ship != undefined){
-        const shipBox = new Box3().setFromObject(ship);
-        // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
-        // projectileSphere.position = projectile.position.clone();
-        // debugger;
-        const projectileBox = new Box3().setFromObject(projectile);
-    
-    // debugger;
-            if(ray.intersectsBox(shipBox)){
-                // debugger;
-                if(shipBox.intersectsBox(projectileBox)){
-                    // debugger;
-                    count+=1;
-                    console.log("SHIP HIT");
-                    const explosionAudio = new Audio("./src/components/sounds/explosion.mp3"); 
-                    explosionAudio.play();
-                    ship.clear();
-                    ship.removeFromParent();
-                    scene.remove(projectile);
-                }
-            }
-    
-        }
-    
-    }
-//     if(ship.model.children[0] != undefined){
-//         const shipBox = new Box3().setFromObject(ship.model.children[0]);
-//         // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
-//         // projectileSphere.position = projectile.position.clone();
-
-//         if(ray.intersectsBox(shipBox)){
-            
-//             count+=1;
-//             console.log("SHIP HIT");
-//             const explosionAudio = new Audio("./src/components/sounds/explosion.mp3"); 
-//             explosionAudio.play();
-//             ship.model.clear();
-//             ship.model.removeFromParent();
-//             scene.remove(projectile);
-            
-//         }
-//     }
-// }
-
-
-// start code for crosshair
-let crosshairSprite = getSprite('src/components/sprites/green_crosshair.png');
-const chsScale = 0.005;
-crosshairSprite.scale.set(chsScale,chsScale,chsScale);
-
-// crosshairSprite.position.set(0,10,10);
-
-scene.add(crosshairSprite);
-// end code for crosshair
-
-const width = window.innerWidth;
-const height = window.innerHeight/10;
-// var hudCanvas = document.createElement('canvas');
-// document.body.appendChild(hudCanvas);
-// hudCanvas.width = width;
-// hudCanvas.height = height;
-// hudCanvas.id="canvasHUD"
-
-
-
-const camera = new PerspectiveCamera(50, 1, 0.1, 800);
-const renderer = new WebGLRenderer({antialias: true });
-renderer.setSize( width, height );
-renderer.autoClear = false;
-const canvas = renderer.domElement;
-
-var hudCanvas = document.createElement('canvas');
-hudCanvas.width = width;
-hudCanvas.height = height*5;
-
-var hudBitmap = hudCanvas.getContext('2d');
-hudBitmap.font = "Normal 50px Arial";
-hudBitmap.textAlign = 'center';
-hudBitmap.fillStyle = "Purple";
-hudBitmap.fillText('Score: 0', width/2 , height/2 );
-
-var cameraHUD = new OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 10 );
-
-var sceneHUD = new Scene();
-
-var hudTexture = new Texture(hudCanvas) 
-hudTexture.needsUpdate = true
-
-var material = new MeshBasicMaterial( {map: hudTexture} );
-material.transparent = true;
-
-var planeGeometry = new PlaneGeometry( width, height );
-var plane = new Mesh( planeGeometry, material );
-sceneHUD.add( plane );
-
-// Set up camera
-camera.position.set(500, 0, 0);
-camera.lookAt(new Vector3(-15, 0, 0));
-
-// Set up renderer, canvas, and minor CSS adjustments
-renderer.setPixelRatio(window.devicePixelRatio);
-
-canvas.style.display = 'block'; // Removes padding below canvas
-document.body.style.margin = 0; // Removes margin around page
-document.body.style.overflow = 'hidden'; // Fix scrolling
-document.body.appendChild(canvas);
-
-// Set up controls
-// const controls = new PlayerControls(camera, canvas);
-const controls = new test(camera, canvas);
-// test.maxPolarAngle = 1;
-
-// controls.update();
-
-let curTime = 0;
-let prevTime = 0;
-let moveUp = false;
-let moveDown = false;
-let moveLeft = false;
-let moveRight = false;
-
-const zLimit = 20;
-const yLimit = 20;
-
-// let raycaster = new THREE.Raycaster();
-let cameraDirection = new Vector3();
-let crosshairPos = new Vector3();
+var redMaterial;
 
 const projectiles=[];
 const rays =[];
 const cameraDirs=[];
-// Render loop
+const laserSounds = []; 
 
-const ships = new Group();
-let shipsRendered = false;
-// making row of ships
+document.getElementById('beginButton').addEventListener('click', initScene);
+
+function initScene(){
+    div.style.display="none"
+    sceneBool=true
+    const PI = 3.1415;
+    // Initialize core ThreeJS components
+    scene = new Scene();
+    scene.background = new Color(0x000000);
+    const light = new AmbientLight( 0x909090 ); // soft white light
+    scene.add( light );
 
 
-const testShip = new Ship();
-testShip.loadModel();
+    // start code for stars
+    starsGroupA = new Group();
 
-// path for ships to follow
+    const getSprite = (texturePath) => {
+        let texture=new TextureLoader().load(texturePath);
 
-const shipPath = new CurvePath();
-let fractionEnemyMovement = 0;
+        let spriteMaterial = new SpriteMaterial( { map: texture } );
+        let sprite = new Sprite( spriteMaterial );
+        return sprite
+    };
+
+
+    const addStarsA = (texturePath, amount, spriteScale) => {
+
+        let sprite = getSprite(texturePath);
+        sprite.scale.set(spriteScale,spriteScale,spriteScale);
+        
+        
+        for (let num = 0; num < amount; num++) {
+          let coords=new Vector3(Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500));
+          
+          const centerStarlessRadius = 50;
+          // make sure stars don't get too close to area ship will be in
+          if(!(Math.sqrt(coords.y ** 2 + coords.z ** 2) < centerStarlessRadius)){
+            let pointSprite = sprite.clone();
+            pointSprite.position.set(coords.x,coords.y,coords.z);
+    
+            starsGroupA.add(pointSprite);
+          }
+        //   scene.add(pointSprite);
+        
+        }
+        starsGroupA.position.x=4000
+        scene.add(starsGroupA);
+    };
+
+    addStarsA('src/components/sprites/red.png', 1000, 2);
+    addStarsA('src/components/sprites/white.png', 1000, 5);
+    addStarsA('src/components/sprites/blue.png',1000,3);
+
+
+    starsGroupB=new Group()
+    const addStarsB = (texturePath, amount, spriteScale) => {
+
+        let sprite = getSprite(texturePath);
+        sprite.scale.set(spriteScale,spriteScale,spriteScale);
+        
+        
+        for (let num = 0; num < amount; num++) {
+          let coords=new Vector3(Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500));
+          
+          const centerStarlessRadius = 50;
+          // make sure stars don't get too close to area ship will be in
+          if(!(Math.sqrt(coords.y ** 2 + coords.z ** 2) < centerStarlessRadius)){
+            let pointSprite = sprite.clone();
+            pointSprite.position.set(coords.x,coords.y,coords.z);
+    
+            starsGroupB.add(pointSprite);
+
+          }
+        //   scene.add(pointSprite);
+        
+        }
+        
+        scene.add(starsGroupB);
+    };
+
+    addStarsB('src/components/sprites/red.png', 1000, 2);
+    addStarsB('src/components/sprites/white.png', 1000, 5);
+    addStarsB('src/components/sprites/blue.png',1000,3);
+
+
+    starsGroupB.position.x = -750;
+    scene.add(starsGroupB);
+    // end code for stars
+
+    const checkBlasterCollision = (ray, projectile, ship) => {
+
+        if(ship != undefined){
+            const shipBox = new Box3().setFromObject(ship);
+            // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
+            // projectileSphere.position = projectile.position.clone();
+            
+            const projectileBox = new Box3().setFromObject(projectile);
+        
+        
+                if(ray.intersectsBox(shipBox)){
+                    
+                    if(shipBox.intersectsBox(projectileBox)){
+                        
+                        count+=1;
+                        const explosionAudio = new Audio("./src/components/sounds/explosion.mp3"); 
+                        explosionAudio.play();
+                        ship.clear();
+                        ship.removeFromParent();
+                        scene.remove(projectile);
+                    }
+                }
+        
+            }
+        
+    }
+
+
+
+    // start code for crosshair
+    let crosshairSprite = getSprite('src/components/sprites/green_crosshair.png');
+    const chsScale = 0.005;
+    crosshairSprite.scale.set(chsScale,chsScale,chsScale);
+
+    // crosshairSprite.position.set(0,10,10);
+
+    scene.add(crosshairSprite);
+    // end code for crosshair
+
+    const width = window.innerWidth;
+    const height = window.innerHeight/5;
+
+    camera = new PerspectiveCamera(50, 1, 0.1, 800);
+    renderer = new WebGLRenderer({antialias: true });
+    renderer.setSize( width, height );
+    renderer.autoClear = false;
+    const canvas = renderer.domElement;
+
+
+
+    //HUD Display
+    var hudCanvas = document.createElement('canvas');
+    hudCanvas.width = width;
+    hudCanvas.height = height*5;
+
+    var hudBitmap = hudCanvas.getContext('2d');
+    hudBitmap.font = "Normal 50px Arial";
+    hudBitmap.textAlign = 'center';
+    hudBitmap.fillStyle = "Purple";
+    hudBitmap.fillText('Score: 0', width/2 , height/2 );
+
+    var cameraHUD = new OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 10 );
+
+    var sceneHUD = new Scene();
+
+    var hudTexture = new Texture(hudCanvas) 
+    hudTexture.needsUpdate = true
+
+    var material = new MeshBasicMaterial( {map: hudTexture} );
+    material.transparent = true;
+
+    var planeGeometry = new PlaneGeometry( width, height );
+    var plane = new Mesh( planeGeometry, material );
+    sceneHUD.add( plane );
+    //HUD Display end
+
+    // Set up camera
+    camera.position.set(500, 0, 0);
+    camera.lookAt(new Vector3(-15, 0, 0));
+
+    // Set up renderer, canvas, and minor CSS adjustments
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    canvas.style.display = 'block'; // Removes padding below canvas
+    document.body.style.margin = 0; // Removes margin around page
+    document.body.style.overflow = 'hidden'; // Fix scrolling
+    document.body.appendChild(canvas);
+
+
+
+    // Set up controls
+    // const controls = new PlayerControls(camera, canvas);
+     controls = new test(camera, canvas);
+    // test.maxPolarAngle = 1;
+
+    // controls.update();
+
+    let curTime = 0;
+    let prevTime = 0;
+    let moveUp = false;
+    let moveDown = false;
+    let moveLeft = false;
+    let moveRight = false;
+
+    const zLimit = 20;
+    const yLimit = 20;
+
+    // let raycaster = new THREE.Raycaster();
+    let cameraDirection = new Vector3();
+    let crosshairPos = new Vector3();
+
+    
+    // Render loop
+
+    const ships = new Group();
+    let shipsRendered = false;
+    // making row of ships
+
+    const testShip = new Ship();
+    testShip.loadModel();
+
+    // path for ships to follow
+
+    const shipPath = new CurvePath();
+    let fractionEnemyMovement = 0;
+
 
 const onAnimationFrameHandler = (timeStamp) => {
 
@@ -241,10 +307,10 @@ const onAnimationFrameHandler = (timeStamp) => {
     let a = testShip;
     if(testShip.geometry.index != undefined && shipsRendered == false){
 
-        // debugger;
+        
 
         for(let i = 0; i < 10; i++){
-            // debugger;
+            
             const newShip = testShip.clone();
             newShip.position.z += i * 8;
             newShip.position.y = Math.ceil(((2*Math.random())-1)*60);
@@ -261,9 +327,6 @@ const onAnimationFrameHandler = (timeStamp) => {
         shipsRendered = true;
 
     } 
-
-
-
 
     let deltaT = (curTime - prevTime)/1000;
 
@@ -283,9 +346,11 @@ const onAnimationFrameHandler = (timeStamp) => {
     starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
-
-    if(starsGroupA.position.x > 700 ) starsGroupA.position.x = 200;
-    if(starsGroupB.position.x > 700) starsGroupB.position.x = 200;
+    const differenceA=starsGroupA.position.x-camera.position.x
+    const differenceB=starsGroupB.position.x-camera.position.x
+    
+    if(differenceA>750) starsGroupA.position.x =starsGroupB.position.x-1000;
+    if(differenceB >750) starsGroupB.position.x = starsGroupA.position.x-1000;
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
@@ -300,7 +365,7 @@ const onAnimationFrameHandler = (timeStamp) => {
 
             if(shipsRendered){
                 for(let j = 0; j < ships.children.length; j++){
-                    debugger;
+                    
                     checkBlasterCollision(rays[i], projectiles[i], ships.children[j]);
 
 
@@ -317,12 +382,11 @@ const onAnimationFrameHandler = (timeStamp) => {
     // move ships forward
     if(shipsRendered && fractionEnemyMovement < 1){
 
-        const enemySpeed = 100;
+        const enemySpeed = 20;
         const newPosition = shipPath.getPoint(fractionEnemyMovement);
-        debugger;
+        
         ships.position.copy(newPosition);
         fractionEnemyMovement += enemySpeed * deltaT *0.001;
-
 
     }
 
@@ -347,21 +411,27 @@ const onAnimationFrameHandler = (timeStamp) => {
     prevTime = curTime;
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
+
+
 window.requestAnimationFrame(onAnimationFrameHandler);
 
+
 // Resize Handler
-const windowResizeHandler = () => {
+    const windowResizeHandler = () => {
     const { innerHeight, innerWidth } = window;
     renderer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
-};
-windowResizeHandler();
-window.addEventListener('resize', windowResizeHandler, false);
+    };
+    windowResizeHandler();
+    window.addEventListener('resize', windowResizeHandler, false);
 
 
-const laserSounds = [];  
-const redMaterial = new MeshBasicMaterial({color: 0xff0000});
+    
+    redMaterial = new MeshBasicMaterial({color: 0xff0000});
+
+    controls.lock()
+}
 
 
 
@@ -375,7 +445,7 @@ function onMouseDown(){
     const audio = new Audio("./src/components/sounds/shortLaser.mp3"); 
     laserSounds.push(audio);
 
-    if(controls.isLocked === true){
+    if(sceneBool){
 
         // console.log(starsGroupA.position);
         if (laserSounds.length>10){
@@ -423,6 +493,11 @@ document.addEventListener("mouseup", event => {
         
   });
 
+
+var moveDown;
+var moveUp;
+var moveLeft;
+var moveRight;
 document.addEventListener("keydown", event => {
 
     switch ( event.code ) {
@@ -445,10 +520,6 @@ document.addEventListener("keydown", event => {
         case 'ArrowRight':
         case 'KeyD':
             moveRight = true;
-            break;
-
-        case 'Space':
-            controls.lock()
             break;
 
     }
@@ -485,4 +556,5 @@ document.addEventListener("keyup", event => {
     }
 
 });
+
 
