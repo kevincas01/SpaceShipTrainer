@@ -1,1 +1,1 @@
-export { default as ship } from './ship.js';
+export { default as Ship } from './ship.js';

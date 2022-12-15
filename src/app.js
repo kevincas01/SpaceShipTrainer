@@ -14,23 +14,24 @@ To add:
  - Detect collision with ships (for each ray check if it collides with a ship.  If it does check if its projectile is within the ship's hitbox)
  - Make ship type 2 which shoots lasers
 */
-import { AmbientLight, Box3,PlaneGeometry, BoxBufferGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry, Group, Sphere} from 'three';
+import { AmbientLight, Box3,PlaneGeometry, BoxBufferGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry, Group, Sphere, CurvePath, LineCurve3} from 'three';
 
 import { test } from 'objects';
-import {ship} from 'objects';
+import {Ship} from 'objects';
 // import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 // import { SeedScene } from 'scenes';
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 
+const PI = 3.1415;
 // Initialize core ThreeJS components
 const scene = new Scene();
 scene.background = new Color(0x000000);
-const geom = new BoxBufferGeometry(2,2,2);
-const mat = new MeshBasicMaterial();
-const cube = new Mesh(geom, mat);
-cube.position.set(490,0,0);
+// const geom = new BoxBufferGeometry(2,2,2);
+// const mat = new MeshBasicMaterial();
+// const cube = new Mesh(geom, mat);
+// cube.position.set(490,0,0);
 
-scene.add(cube);
+// scene.add(cube);
 
 const light = new AmbientLight( 0x909090 ); // soft white light
 scene.add( light );
@@ -78,8 +79,8 @@ const addStars = (texturePath, amount, spriteScale) => {
 
 const checkBlasterCollision = (ray, projectile, ship) => {
 
-if(ship.model.children[0] != undefined){
-const shipBox = new Box3().setFromObject(ship.model.children[0]);
+if(ship != undefined){
+const shipBox = new Box3().setFromObject(ship);
 // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
 // projectileSphere.position = projectile.position.clone();
 // debugger;
@@ -92,8 +93,8 @@ if(ray.intersectsBox(shipBox)){
         // debugger;
         count+=1;
         console.log("SHIP HIT");
-        ship.model.clear();
-        ship.model.removeFromParent();
+        ship.clear();
+        ship.removeFromParent();
         scene.remove(projectile);
     }
 }
@@ -201,17 +202,46 @@ const rays =[];
 const cameraDirs=[];
 // Render loop
 
-const testShip = new ship(scene);
+const ships = new Group();
+let shipsRendered = false;
+// making row of ships
+
+
+const testShip = new Ship();
+testShip.loadModel();
+
+// path for ships to follow
+
+const shipPath = new CurvePath();
+let fractionEnemyMovement = 0;
 
 const onAnimationFrameHandler = (timeStamp) => {
 
     curTime = timeStamp;
-    // debugger;
     let a = testShip;
-    if(testShip != undefined && testShip.model != undefined){
-        testShip.model.position.set(480,3,3);
+    if(testShip.geometry.index != undefined && shipsRendered == false){
+
         // debugger;
+
+        for(let i = 0; i < 10; i++){
+            // debugger;
+            const newShip = testShip.clone();
+            newShip.position.z += i * 8;
+            newShip.rotateY(-PI/2);
+            ships.add(newShip);
+        }
+        // testShip.position.set(480,3,3);
+        // scene.add(testShip);
+        ships.position.set(420,0,-30);
+        scene.add(ships);
+
+        const path1 = new LineCurve3(ships.position.clone(), ships.position.clone().add(new Vector3(140,0,0)));
+        shipPath.add(path1);
+        shipsRendered = true;
+
     } 
+
+
 
 
     let deltaT = (curTime - prevTime)/1000;
@@ -226,7 +256,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
 
     // player movement code end
-    const spaceshipForwardSpeed = 1000;
+    const spaceshipForwardSpeed = 300;
     starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
@@ -246,13 +276,33 @@ const projectileSpeed = 3;
 
             projectiles[i].position.add(rays[i].direction.clone().multiplyScalar(projectileSpeed));
             // projectiles[i].position.add(cameraDirs[i].clone().multiplyScalar(raySpeed));
-            checkBlasterCollision(rays[i], projectiles[i], testShip);
+
+            if(shipsRendered){
+                for(let j = 0; j < ships.children.length; j++){
+                    debugger;
+                    checkBlasterCollision(rays[i], projectiles[i], ships.children[j]);
+
+
+                }
+        }
         }
         else{
             projectiles.splice[i,1];
             continue;
         }
       
+    }
+
+    // move ships forward
+    if(shipsRendered && fractionEnemyMovement < 1){
+
+        const enemySpeed = 100;
+        const newPosition = shipPath.getPoint(fractionEnemyMovement);
+        debugger;
+        ships.position.copy(newPosition);
+        fractionEnemyMovement += enemySpeed * deltaT *0.001;
+
+
     }
 
 // crosshair code start
