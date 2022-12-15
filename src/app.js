@@ -19,7 +19,7 @@ import { AmbientLight, Box3,PlaneGeometry, BoxBufferGeometry, OrthographicCamera
 import { test } from 'objects';
 import {Ship} from 'objects';
 // import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-// import { SeedScene } from 'scenes';
+
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 
 const PI = 3.1415;
@@ -37,11 +37,7 @@ const light = new AmbientLight( 0x909090 ); // soft white light
 scene.add( light );
 
 
-// code for hud, mostly from evermade.fi
-
-
 // start code for stars
-
 
 const starsGroupA = new Group();
 
@@ -77,41 +73,65 @@ const addStars = (texturePath, amount, spriteScale) => {
     scene.add(starsGroupA);
 };
 
-const checkBlasterCollision = (ray, projectile, ship) => {
 
-    if(ship != undefined){
-    const shipBox = new Box3().setFromObject(ship);
-    // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
-    // projectileSphere.position = projectile.position.clone();
-    // debugger;
-    const projectileBox = new Box3().setFromObject(projectile);
 
-// debugger;
-        if(ray.intersectsBox(shipBox)){
-            // debugger;
-            if(shipBox.intersectsBox(projectileBox)){
-                // debugger;
-                count+=1;
-                console.log("SHIP HIT");
-                ship.clear();
-                ship.removeFromParent();
-                scene.remove(projectile);
-            }
-        }
-
-    }
-
-}
+const starsGroupB = starsGroupA.clone();
+scene.add(starsGroupB);
+starsGroupB.position.x = -100;
 
 addStars('src/components/sprites/red.png', 1000, 2);
 addStars('src/components/sprites/white.png', 1000, 5);
 addStars('src/components/sprites/blue.png',1000,3);
 
-const starsGroupB = starsGroupA.clone();
-scene.add(starsGroupB);
-starsGroupB.position.x = -600;
-
 // end code for stars
+
+
+const checkBlasterCollision = (ray, projectile, ship) => {
+
+
+    if(ship != undefined){
+        const shipBox = new Box3().setFromObject(ship);
+        // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
+        // projectileSphere.position = projectile.position.clone();
+        // debugger;
+        const projectileBox = new Box3().setFromObject(projectile);
+    
+    // debugger;
+            if(ray.intersectsBox(shipBox)){
+                // debugger;
+                if(shipBox.intersectsBox(projectileBox)){
+                    // debugger;
+                    count+=1;
+                    console.log("SHIP HIT");
+                    const explosionAudio = new Audio("./src/components/sounds/explosion.mp3"); 
+                    explosionAudio.play();
+                    ship.clear();
+                    ship.removeFromParent();
+                    scene.remove(projectile);
+                }
+            }
+    
+        }
+    
+    }
+//     if(ship.model.children[0] != undefined){
+//         const shipBox = new Box3().setFromObject(ship.model.children[0]);
+//         // const projectileSphere = new Sphere.projectile.geometry.boundingSphere.clone();
+//         // projectileSphere.position = projectile.position.clone();
+
+//         if(ray.intersectsBox(shipBox)){
+            
+//             count+=1;
+//             console.log("SHIP HIT");
+//             const explosionAudio = new Audio("./src/components/sounds/explosion.mp3"); 
+//             explosionAudio.play();
+//             ship.model.clear();
+//             ship.model.removeFromParent();
+//             scene.remove(projectile);
+            
+//         }
+//     }
+// }
 
 
 // start code for crosshair
@@ -227,15 +247,16 @@ const onAnimationFrameHandler = (timeStamp) => {
             // debugger;
             const newShip = testShip.clone();
             newShip.position.z += i * 8;
+            newShip.position.y = Math.ceil(((2*Math.random())-1)*60);
             newShip.rotateY(-PI/2);
             ships.add(newShip);
         }
         // testShip.position.set(480,3,3);
         // scene.add(testShip);
-        ships.position.set(420,0,-30);
+        ships.position.set(300,0,-30);
         scene.add(ships);
 
-        const path1 = new LineCurve3(ships.position.clone(), ships.position.clone().add(new Vector3(140,0,0)));
+        const path1 = new LineCurve3(ships.position.clone(), new Vector3(600,ships.position.y,ships.position.z));
         shipPath.add(path1);
         shipsRendered = true;
 
@@ -247,7 +268,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     let deltaT = (curTime - prevTime)/1000;
 
     // player movement code start
-    const playerStrafeSpeed = 10;
+    const playerStrafeSpeed = 20;
 
     const zMovement = deltaT * playerStrafeSpeed * (Number(moveLeft) - Number(moveRight));
     const yMovement = deltaT * playerStrafeSpeed * (Number(moveUp) - Number(moveDown));
@@ -256,21 +277,21 @@ const onAnimationFrameHandler = (timeStamp) => {
     if(!(camera.position.y + yMovement > yLimit || camera.position.y + yMovement < -yLimit)) camera.position.y += yMovement;
 
     // player movement code end
-    const spaceshipForwardSpeed = 300;
+
+    // speed of the stars going past spaceship
+    const spaceshipForwardSpeed = 100;
     starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
 
-    if(starsGroupA.position.x > 600 ) starsGroupA.position.x = -600;
-    if(starsGroupB.position.x > 600) starsGroupB.position.x = -600;
-
-    // camera.position.x=camera.position.x-(spaceshipForwardSpeed * deltaT);
+    if(starsGroupA.position.x > 700 ) starsGroupA.position.x = 200;
+    if(starsGroupB.position.x > 700) starsGroupB.position.x = 200;
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
     ray.at(0.2, crosshairPos);
     
-const projectileSpeed = 3;
+    const projectileSpeed = 3;
     for (let i = 0; i < projectiles.length; i++) {
         if(projectiles[i].active){
 
@@ -366,25 +387,26 @@ function onMouseDown(){
         }
 
         const projectileRadius = 0.2;
-            var shot=new Mesh(new SphereGeometry(projectileRadius,10,8),redMaterial);
-            shot.position.set(camera.position.x,camera.position.y,camera.position.z);
-            
-            cameraDirs.push(camera.getWorldDirection(new Vector3()));
+        var shot=new Mesh(new SphereGeometry(projectileRadius,10,8),redMaterial);
+        shot.position.set(camera.position.x,camera.position.y,camera.position.z);
+        
+        cameraDirs.push(camera.getWorldDirection(new Vector3()));
 
-            rays.push(new Ray(camera.position, camera.getWorldDirection(new Vector3())));
+        rays.push(new Ray(camera.position, camera.getWorldDirection(new Vector3())));
 
-            shot.active=true
-            setTimeout(()=>{
-                scene.remove(shot);
-                shot.active=false
-            },4000)
-            shot.geometry.boundingSphere = new Sphere();
-            // shot.geometry.boundingSphere.center = new Vector3(camera.position.x,camera.position.y,camera.position.z);
-            shot.geometry.boundingSphere.radius = projectileRadius;
-            projectiles.push(shot)
-            scene.add(shot)
+        shot.active=true
+        setTimeout(()=>{
+            scene.remove(shot);
+            shot.active=false
+        },4000)
 
-            setTimeout(onMouseDown, 100);
+        shot.geometry.boundingSphere = new Sphere();
+        // shot.geometry.boundingSphere.center = new Vector3(camera.position.x,camera.position.y,camera.position.z);
+        shot.geometry.boundingSphere.radius = projectileRadius;
+        projectiles.push(shot)
+        scene.add(shot)
+
+        setTimeout(onMouseDown, 100);
 
 
     }
@@ -427,8 +449,6 @@ document.addEventListener("keydown", event => {
 
         case 'Space':
             controls.lock()
-            // if ( canJump === true ) velocity.y += 350;
-            // canJump = false;
             break;
 
     }
