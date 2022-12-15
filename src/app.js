@@ -350,8 +350,8 @@ const onAnimationFrameHandler = (timeStamp) => {
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
 
-    if(starsGroupA.position.x > 700 ) starsGroupA.position.x = 200;
-    if(starsGroupB.position.x > 700) starsGroupB.position.x = 200;
+    if(starsGroupA.position.x > 500 ) starsGroupA.position.x = 0;
+    if(starsGroupB.position.x > 500) starsGroupB.position.x = 0;
 
     camera.getWorldDirection(cameraDirection);
     let ray = new Ray(camera.position, cameraDirection);
