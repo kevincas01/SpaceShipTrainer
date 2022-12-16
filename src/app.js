@@ -85,6 +85,11 @@ const rays =[];
 const cameraDirs=[];
 const laserSounds = []; 
 
+let moveUp = false;
+let moveDown = false;
+let moveLeft = false;
+let moveRight = false;
+
 
 
 
@@ -92,8 +97,6 @@ const laserSounds = [];
 // making row of ships
 
 
-
-debugger;
 
 
 
@@ -316,10 +319,7 @@ function initScene(){
 
     let curTime = 0;
     let prevTime = 0;
-    let moveUp = false;
-    let moveDown = false;
-    let moveLeft = false;
-    let moveRight = false;
+
 
     const zLimit = 20;
     const yLimit = 20;
@@ -339,18 +339,36 @@ function initScene(){
 const originalShipSpawnRate = 2;
 let curShipSpawnRate = originalShipSpawnRate;  // one ship spawns every 3 seconds
 
+
+const originalShipsPerSpawn = 4;
+const originalEnemySpeed = 20;
+let shipsPerSpawn = originalShipsPerSpawn;
+let enemySpeed = originalEnemySpeed;
+
+
 const onAnimationFrameHandler = (timeStamp) => {
+
+
+
+    // difficulty increase over time code
+
+    let secondsLog = Math.log((curTime/1000));
+    
+    enemySpeed = originalEnemySpeed * secondsLog;
+
+    shipsPerSpawn = Math.floor(Math.log((curTime/1000) * originalShipsPerSpawn));
     
 
     curTime = timeStamp;
-    // ship spawning code (spawns a ship every X seconds)
+    // ship spawning code (spawns a ship every 2 seconds)
     if(curTime/1000 > curShipSpawnRate){
         curShipSpawnRate += originalShipSpawnRate;
-        // console.log("5 SECONDS PASSED");
+        // console.log("2 SECONDS PASSED");
+
+        console.log(curTime/1000);
 
         if(shipsRendered){
 
-            const shipsPerSpawn = 2;
             for (let i = 0; i < shipsPerSpawn; i++){
 
             
@@ -382,6 +400,7 @@ const onAnimationFrameHandler = (timeStamp) => {
         }
 
     }
+
 
     if(redShip.geometry.index != undefined && yellowShip.geometry.index != undefined && greenShip.geometry.index != undefined && shipsRendered == false){
 
@@ -422,7 +441,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     // player movement code end
 
     // speed of the stars going past spaceship
-    const spaceshipForwardSpeed = 100;
+    const spaceshipForwardSpeed = 500;
     starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
@@ -436,7 +455,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     let ray = new Ray(camera.position, cameraDirection);
     ray.at(0.2, crosshairPos);
     
-    const projectileSpeed = 3;
+    const projectileSpeed = 5;
     for (let i = 0; i < projectiles.length; i++) {
         if(projectiles[i].active){
 
@@ -445,7 +464,7 @@ const onAnimationFrameHandler = (timeStamp) => {
 
             if(shipsRendered){
                 for(let j = 0; j < ships.children.length; j++){
-                    debugger;
+            
                     for(let k = 0; k < ships.children[j].children.length; k++){
                         checkBlasterCollision(rays[i], projectiles[i], ships.children[j].children[k]);
                     }
@@ -468,7 +487,7 @@ const onAnimationFrameHandler = (timeStamp) => {
         for(let j = 0; j < ships.children.length; j++){
             // debugger;
             for(let k = 0; k < ships.children[j].children.length; k++){
-                const enemySpeed = 30;
+                
 
                 let curShip = ships.children[j].children[k];
                 curShip.position.x += enemySpeed * deltaT;
@@ -484,14 +503,24 @@ const onAnimationFrameHandler = (timeStamp) => {
                 if(j == 1){
                     curShip.position.z += 0.1 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
 
-                    debugger;
                 }
 
                 if(j == 2){
                     curShip.position.y += 0.1 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
                     curShip.position.z += 0.1 * Math.cos(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
-                    debugger;
                 }
+
+
+                // check if ship hits player
+                if(Math.abs(curShip.position.x - camera.position.x) < 1){
+                    const shipBox = new Box3().setFromObject(curShip);
+                    if(shipBox.containsPoint(camera.position)){
+                        count = 0;
+                        const wilhelmScreamAudio = new Audio("./src/components/sounds/wilhelm.mp3"); 
+                        wilhelmScreamAudio.play();
+                    }
+                }
+
 
             }
 
@@ -584,7 +613,7 @@ function onMouseDown(){
         
         cameraDirs.push(camera.getWorldDirection(new Vector3()));
 
-        rays.push(new Ray(camera.position, camera.getWorldDirection(new Vector3())));
+        rays.push(new Ray(camera.position.clone(), camera.getWorldDirection(new Vector3())));
 
         shot.active=true
         setTimeout(()=>{
@@ -616,13 +645,11 @@ document.addEventListener("mouseup", event => {
   });
 
 
-var moveDown;
-var moveUp;
-var moveLeft;
-var moveRight;
 document.addEventListener("keydown", event => {
+    debugger;
 
     switch ( event.code ) {
+
 
         case 'ArrowUp':
         case 'KeyW':
