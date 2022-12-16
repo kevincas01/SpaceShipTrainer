@@ -501,13 +501,13 @@ const onAnimationFrameHandler = (timeStamp) => {
                 
                 
                 if(j == 1){
-                    curShip.position.z += 0.1 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
+                    curShip.position.z += 0.4 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
 
                 }
 
                 if(j == 2){
-                    curShip.position.y += 0.1 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
-                    curShip.position.z += 0.1 * Math.cos(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/1000));
+                    curShip.position.y += 0.2 * Math.sin(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/100));
+                    curShip.position.z += 0.2 * Math.cos(curShip.movementOffset + Math.floor(curTime/1000) - Math.floor(curShip.creationTime/100));
                 }
 
 
