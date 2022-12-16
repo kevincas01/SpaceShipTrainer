@@ -14,7 +14,7 @@ To add:
  - Detect collision with ships (for each ray check if it collides with a ship.  If it does check if its projectile is within the ship's hitbox)
  - Make ship type 2 which shoots lasers
 */
-import { AmbientLight, Box3,PlaneGeometry, BoxBufferGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial ,BufferGeometry, TextureLoader, Texture, SphereGeometry, Group, Sphere, CurvePath, LineCurve3} from 'three';
+import { AmbientLight, Box3,PlaneGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial , TextureLoader, Texture, SphereGeometry, Group, Sphere, CurvePath, LineCurve3} from 'three';
 
 import { test } from 'objects';
 import {Ship} from 'objects';
@@ -25,49 +25,99 @@ var div = document.createElement("div");
 
 div.style.width="100vh"
 div.style.width="100vw"
-document.body.style.backgroundImage = "url(./src/components/sprites/space.jpg)";
+
+document.body.style.backgroundImage = "url(./src/components/sprites/space2.jpg)";
 document.body.style.backgroundSize = "cover";
-document.body.style.backgroundRepeat = "no-repeat";
 document.body.style.padding="0"
 document.body.style.margin="0"
 document.body.style.backgroundColor="black"
 
-var div2 = document.createElement("div");
+var headerDiv = document.createElement("div");
+headerDiv.style.width="100%"
+headerDiv.style.textAlign="center"
+headerDiv.style.marginTop="10px"
 var header=document.createElement("h1");
 header.id="titleHeader"
 header.innerHTML="SpaceShip Trainer"
 header.style.fontSize = "150px";
-header.style.color="black"
-
-div2.append(header)
+header.style.color="purple"
+header.style.marginTop="50px"
+header.style.marginBottom="50px"
+headerDiv.append(header)
 // create a button element
+
+var instructDiv = document.createElement("div");
+instructDiv.style.width="100%"
+instructDiv.style.display="flex"
+instructDiv.style.alignContent="center"
+
+var instructInnerDiv = document.createElement("div");
+instructInnerDiv.style.width="700px"
+
+instructInnerDiv.style.backgroundColor="purple"
+instructInnerDiv.style.margin="auto"
+instructInnerDiv.style.marginBottom="20px"
+instructInnerDiv.style.fontWeight="BOLD"
+instructInnerDiv.style.fontSize="20PX"
+
+var instructions=document.createElement("p")
+instructions.style.color="black"
+instructions.innerHTML="The rules of the games are as follow:"
+
+
+const ul = document.createElement('ul');
+const li1 = document.createElement('li');
+li1.textContent = 'Move up, down, right and left with the arrow keys on your keyboard or  w,a,s,d keys';
+ul.appendChild(li1);
+
+const li2 = document.createElement('li');
+li2.textContent = 'Move your mouse around to change your perspective. You CANNOT look behind you';
+ul.appendChild(li2);
+
+const li3 = document.createElement('li');
+li3.textContent = 'Mouse click to shoot through the reticle. Get as many points as you can.';
+ul.appendChild(li3);
+
+const li4 = document.createElement('li');
+li4.textContent = 'DON\'T CRASH WITH AN ENEMY SPACESHIP or the game will end';
+ul.appendChild(li4);
+
+instructInnerDiv.appendChild(instructions)
+instructInnerDiv.appendChild(ul)
+instructDiv.appendChild(instructInnerDiv)
+
+var buttonDiv = document.createElement("div");
+buttonDiv.style.width="100%"
+buttonDiv.style.display="flex"
+buttonDiv.style.alignContent="center"
 
 var button = document.createElement("div");
 button.textContent="center"
 button.id="beginButton"
-button.style.display="block"
 button.style.padding="10px"
 button.style.borderRadius="10px"
 button.style.backgroundColor="purple"
 button.style.width="25%"
 button.style.fontSize = "75px";
+button.style.padding = "15px";
+button.style.textAlign="center"
 // set the button's text
 button.innerHTML = "Begin";
+button.style.margin="auto"
 
+buttonDiv.appendChild(button);
 
-div2.style.alignItems = "center";
-div2.style.justifyContent = "center";
+headerDiv.style.alignItems = "center";
+headerDiv.style.justifyContent = "center";
 // add the button to the div
-div2.appendChild(button);
-div.appendChild(div2)
 
-// center the button vertically and horizontally within the div
-div.style.display = "flex";
-div.style.alignItems = "center";
-div.style.justifyContent = "center";
+div.appendChild(headerDiv)
+div.appendChild(instructDiv)
+div.appendChild(buttonDiv)
 
 // add the div to the page
 document.body.appendChild(div);
+
 
 var sceneBool=false;
 var scene;
@@ -77,33 +127,24 @@ var starsGroupB;
 var camera;
 var renderer;
 var controls;
+var animationFrame
 
 var redMaterial;
 
-const projectiles=[];
-const rays =[];
-const cameraDirs=[];
-const laserSounds = []; 
+var projectiles=[];
+var rays =[];
+var cameraDirs=[];
+var laserSounds = []; 
 
 let moveUp = false;
 let moveDown = false;
 let moveLeft = false;
 let moveRight = false;
 
-
-
-
-
-// making row of ships
-
-
-
-
-
 document.getElementById('beginButton').addEventListener('click', initScene);
 
 function initScene(){
-
+    div.style.display="none"
     let shipsRendered = false;
 
     let ships = new Group();
@@ -134,7 +175,7 @@ function initScene(){
 
 
 
-    div.style.display="none"
+    
     sceneBool=true
     const PI = 3.1415;
     // Initialize core ThreeJS components
@@ -151,7 +192,7 @@ function initScene(){
         let texture=new TextureLoader().load(texturePath);
 
         let spriteMaterial = new SpriteMaterial( { map: texture } );
-        let sprite = new Sprite( spriteMaterial );
+        let sprite = new Sprite(spriteMaterial );
         return sprite
     };
 
@@ -268,8 +309,6 @@ function initScene(){
     renderer.autoClear = false;
     const canvas = renderer.domElement;
 
-
-
     //HUD Display
     var hudCanvas = document.createElement('canvas');
     hudCanvas.width = width;
@@ -305,10 +344,8 @@ function initScene(){
 
     canvas.style.display = 'block'; // Removes padding below canvas
     document.body.style.margin = 0; // Removes margin around page
-    document.body.style.overflow = 'hidden'; // Fix scrolling
+    document.body.style.overflow = 'hidden'; 
     document.body.appendChild(canvas);
-
-
 
     // Set up controls
     // const controls = new PlayerControls(camera, canvas);
@@ -347,9 +384,6 @@ let enemySpeed = originalEnemySpeed;
 
 
 const onAnimationFrameHandler = (timeStamp) => {
-
-
-
     // difficulty increase over time code
 
     let secondsLog = Math.log((curTime/1000));
@@ -365,7 +399,6 @@ const onAnimationFrameHandler = (timeStamp) => {
         curShipSpawnRate += originalShipSpawnRate;
         // console.log("2 SECONDS PASSED");
 
-        console.log(curTime/1000);
 
         if(shipsRendered){
 
@@ -389,7 +422,7 @@ const onAnimationFrameHandler = (timeStamp) => {
                     newShip.rotateX(-PI/2);
                 }
 
-
+                
                 newShip.creationTime = curTime;
 
                 // newShip.rotateY(-PI/2);
@@ -403,11 +436,6 @@ const onAnimationFrameHandler = (timeStamp) => {
 
 
     if(redShip.geometry.index != undefined && yellowShip.geometry.index != undefined && greenShip.geometry.index != undefined && shipsRendered == false){
-
-        
-
-  
-
         // for(let i = 0; i < 10; i++){
         //     // debugger;
         //     const newShip = redShip.clone();
@@ -441,7 +469,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     // player movement code end
 
     // speed of the stars going past spaceship
-    const spaceshipForwardSpeed = 500;
+    const spaceshipForwardSpeed = 250;
     starsGroupA.position.x += (spaceshipForwardSpeed * deltaT);
     starsGroupB.position.x += (spaceshipForwardSpeed * deltaT);
 
@@ -516,8 +544,17 @@ const onAnimationFrameHandler = (timeStamp) => {
                     const shipBox = new Box3().setFromObject(curShip);
                     if(shipBox.containsPoint(camera.position)){
                         count = 0;
-                        const wilhelmScreamAudio = new Audio("./src/components/sounds/wilhelm.mp3"); 
-                        wilhelmScreamAudio.play();
+                        while(sceneHUD.children.length > 0){ 
+                            sceneHUD.remove(sceneHUD.children[0]); 
+                        }
+
+                        removeScene()
+                        ships.clear()
+                        starsGroupA.clear()
+                        starsGroupB.clear()
+
+                        document.body.removeChild(canvas);
+                        return
                     }
                 }
 
@@ -560,30 +597,94 @@ const onAnimationFrameHandler = (timeStamp) => {
 
     scene.update && scene.update(timeStamp);
     prevTime = curTime;
-    window.requestAnimationFrame(onAnimationFrameHandler);
+    if(animationFrame){
+        window.requestAnimationFrame(onAnimationFrameHandler);
+    }
+
 };
 
 
-window.requestAnimationFrame(onAnimationFrameHandler);
+animationFrame=window.requestAnimationFrame(onAnimationFrameHandler);
 
 
 // Resize Handler
-    const windowResizeHandler = () => {
-    const { innerHeight, innerWidth } = window;
-    renderer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-    };
+const windowResizeHandler = () => {
+    if(sceneBool){
+        const { innerHeight, innerWidth } = window;
+        renderer.setSize(innerWidth, innerHeight);
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        };
+    }
+    
     windowResizeHandler();
     window.addEventListener('resize', windowResizeHandler, false);
-
-
     
     redMaterial = new MeshBasicMaterial({color: 0xff0000});
 
     controls.lock()
 }
 
+
+
+var gameOverDiv = document.createElement("div");
+gameOverDiv.id="gameOver";
+
+var gameOverheaderDiv = document.createElement("div");
+gameOverheaderDiv.style.width="100%"
+gameOverheaderDiv.style.textAlign="center"
+gameOverheaderDiv.style.marginTop="10px"
+
+var gameOverheader=document.createElement("h1");
+gameOverheader.id="titleHeader"
+gameOverheader.innerHTML="GAME OVER"
+gameOverheader.style.fontSize = "150px";
+gameOverheader.style.color="purple"
+
+gameOverDiv.appendChild(gameOverheaderDiv);
+gameOverheaderDiv.appendChild(gameOverheader)
+
+gameOverDiv.style.display="none"
+document.body.appendChild(gameOverDiv);
+
+function removeScene(){
+    console.log(scene.children)
+    for (let i = 0; i < scene.children.length; i ++) {
+        let object = scene.children[i];
+        
+        console.log(object)
+        
+        scene.remove(object)
+        if (object.type === 'Mesh') {
+            object.geometry.dispose();
+            object.material.dispose();
+        }
+        
+    }
+    scene.children=[]
+
+    console.log(scene.children)
+
+    renderer.dispose()
+    
+    controls.unlock()
+    sceneBool=false;
+    window.cancelAnimationFrame(animationFrame);
+    animationFrame=undefined
+    scene = null;
+    renderer = null;
+    gameOverDiv.style.display="block"
+
+    projectiles=[];
+    rays =[];
+    cameraDirs=[];
+    laserSounds = []; 
+
+    setTimeout(()=>{
+        gameOverDiv.style.display="none"
+        div.style.display="block"
+    },2000)
+}
 
 
 let mouseIsPressed=false;
@@ -617,9 +718,12 @@ function onMouseDown(){
 
         shot.active=true
         setTimeout(()=>{
-            scene.remove(shot);
-            shot.active=false
+            if(sceneBool){
+                 scene.remove(shot);
+                shot.active=false
+            }
         },4000)
+
 
         shot.geometry.boundingSphere = new Sphere();
         // shot.geometry.boundingSphere.center = new Vector3(camera.position.x,camera.position.y,camera.position.z);
@@ -633,6 +737,8 @@ function onMouseDown(){
     }
 
 }
+
+
 document.addEventListener( 'mousedown', function(){
     mouseIsPressed=true;
     onMouseDown();
