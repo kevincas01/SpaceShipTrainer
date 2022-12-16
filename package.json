@@ -1,6 +1,6 @@
 {
   "name": "spaceship_trainer",
-  "repository": "https://github.com/kevincas01/COS426-FinalProject.git",
+  "repository": "COS426-FinalProject",
   "version": "0.1.0",
   "title": "Spaceship Trainer",
   "description": "A small game made using three.js which allows the player to control a spaceship in first-person view and fire at other enemy ships, like a 3D version of space invaders.",
