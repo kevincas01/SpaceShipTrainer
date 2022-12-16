@@ -14,7 +14,7 @@ To add:
  - Detect collision with ships (for each ray check if it collides with a ship.  If it does check if its projectile is within the ship's hitbox)
  - Make ship type 2 which shoots lasers
 */
-import { AmbientLight, Box3,PlaneGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial , TextureLoader, Texture, SphereGeometry, Group, Sphere, CurvePath, LineCurve3} from 'three';
+import { AmbientLight, Box3,PlaneGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial , TextureLoader, Texture, SphereGeometry, Group, Sphere, CurvePath} from 'three';
 
 import { test } from 'objects';
 import {Ship} from 'objects';
@@ -548,6 +548,8 @@ const onAnimationFrameHandler = (timeStamp) => {
                             sceneHUD.remove(sceneHUD.children[0]); 
                         }
 
+                        const gameOver = new Audio("./src/components/sounds/gameOver.mp3"); 
+                        gameOver.play();
                         removeScene()
                         ships.clear()
                         starsGroupA.clear()
@@ -684,7 +686,7 @@ function removeScene(){
 
     setTimeout(()=>{
         gameOverDiv.style.display="none"
-        div.style.display="block"
+        window.location.reload();
     },2000)
 }
 
