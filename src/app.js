@@ -9,9 +9,7 @@
 
 /*
 To add:
- - Make movement based around stars moving towards player character, with starfield copying itself at halfway point and creating a second one, deleting the first one after it passes
- - Get ships to move in pattern in waves
- - Detect collision with ships (for each ray check if it collides with a ship.  If it does check if its projectile is within the ship's hitbox)
+
  - Make ship type 2 which shoots lasers
 */
 import { AmbientLight, Box3,PlaneGeometry, OrthographicCamera,Mesh, WebGLRenderer, Ray, SpriteMaterial,Sprite, PerspectiveCamera, Vector3, Scene, Color, MeshBasicMaterial , TextureLoader, Texture, SphereGeometry, Group, Sphere, CurvePath} from 'three';
@@ -204,7 +202,7 @@ function initScene(){
         
         
         for (let num = 0; num < amount; num++) {
-          let coords=new Vector3(Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500));
+          let coords=new Vector3(Math.floor(Math.random()*1000-500),Math.floor(Math.random()*1000-500),Math.floor(Math.random()*1000-500));
           
           const centerStarlessRadius = 50;
           // make sure stars don't get too close to area ship will be in
@@ -234,7 +232,7 @@ function initScene(){
         
         
         for (let num = 0; num < amount; num++) {
-          let coords=new Vector3(Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500),Math.ceil(Math.random()*1000-500));
+          let coords=new Vector3(Math.floor(Math.random()*1000-500),Math.floor(Math.random()*1000-500),Math.floor(Math.random()*1000-500));
           
           const centerStarlessRadius = 50;
           // make sure stars don't get too close to area ship will be in
@@ -407,9 +405,6 @@ const onAnimationFrameHandler = (timeStamp) => {
     if(Math.floor(curTime/1000) % originalShipSpawnRate == 0 && Math.floor(curTime/1000) != lastSpawnTime){
 
         lastSpawnTime = Math.floor(curTime/1000);
-        // curShipSpawnRate += originalShipSpawnRate;
-        // console.log("2 SECONDS PASSED");
-
 
         if(shipsRendered){
 
@@ -672,11 +667,8 @@ gameOverDiv.style.display="none"
 document.body.appendChild(gameOverDiv);
 
 function removeScene(){
-    console.log(scene.children)
     for (let i = 0; i < scene.children.length; i ++) {
         let object = scene.children[i];
-        
-        console.log(object)
         
         scene.remove(object)
         if (object.type === 'Mesh') {
@@ -687,7 +679,6 @@ function removeScene(){
     }
     scene.children=[]
 
-    console.log(scene.children)
 
     renderer.dispose()
     
@@ -716,6 +707,7 @@ let count=0;
 function onMouseDown(){
 
     if(!mouseIsPressed){
+        laserSounds.length = 0;
         return;
     }
     const audio = new Audio("./src/components/sounds/shortLaser.mp3"); 
@@ -723,7 +715,6 @@ function onMouseDown(){
 
     if(sceneBool){
 
-        // console.log(starsGroupA.position);
         if (laserSounds.length>10){
             laserSounds.splice(5,6)
         }
