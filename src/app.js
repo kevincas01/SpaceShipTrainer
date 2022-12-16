@@ -144,7 +144,7 @@ let moveRight = false;
 document.getElementById('beginButton').addEventListener('click', initScene);
 
 function initScene(){
-    div.style.display="none"
+
     let shipsRendered = false;
 
     let ships = new Group();
@@ -258,9 +258,8 @@ function initScene(){
 
 
     starsGroupB.position.x = -750;
-    scene.add(starsGroupB);
     // end code for stars
-
+    
     const checkBlasterCollision = (ray, projectile, ship) => {
 
         if(ship != undefined){
@@ -350,6 +349,7 @@ function initScene(){
     // Set up controls
     // const controls = new PlayerControls(camera, canvas);
      controls = new test(camera, canvas);
+     controls.lock()
     // test.maxPolarAngle = 1;
 
     // controls.update();
@@ -623,6 +623,8 @@ const windowResizeHandler = () => {
     redMaterial = new MeshBasicMaterial({color: 0xff0000});
 
     controls.lock()
+
+    div.style.display="none"
 }
 
 
