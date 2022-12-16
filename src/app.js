@@ -382,10 +382,20 @@ const originalEnemySpeed = 20;
 let shipsPerSpawn = originalShipsPerSpawn;
 let enemySpeed = originalEnemySpeed;
 
+let lastSpawnTime = 0;
+
+let start = null;
 
 const onAnimationFrameHandler = (timeStamp) => {
-    // difficulty increase over time code
 
+    // from https://stackoverflow.com/questions/52040914/resetting-the-value-of-timestamp-in-requestanimationframe
+    if (!start) {
+        start = timeStamp;
+      };
+
+    curTime = timeStamp - start;
+
+        // difficulty increase over time code
     let secondsLog = Math.log((curTime/1000));
     
     enemySpeed = originalEnemySpeed * secondsLog;
@@ -393,10 +403,11 @@ const onAnimationFrameHandler = (timeStamp) => {
     shipsPerSpawn = Math.floor(Math.log((curTime/1000) * originalShipsPerSpawn));
     
 
-    curTime = timeStamp;
     // ship spawning code (spawns a ship every 2 seconds)
-    if(curTime/1000 > curShipSpawnRate){
-        curShipSpawnRate += originalShipSpawnRate;
+    if(Math.floor(curTime/1000) % originalShipSpawnRate == 0 && Math.floor(curTime/1000) != lastSpawnTime){
+
+        lastSpawnTime = Math.floor(curTime/1000);
+        // curShipSpawnRate += originalShipSpawnRate;
         // console.log("2 SECONDS PASSED");
 
 
@@ -544,6 +555,15 @@ const onAnimationFrameHandler = (timeStamp) => {
                     const shipBox = new Box3().setFromObject(curShip);
                     if(shipBox.containsPoint(camera.position)){
                         count = 0;
+
+                        const wilhelmScreamAudio = new Audio("./src/components/sounds/wilhelm.mp3"); 
+                        wilhelmScreamAudio.play();
+
+                        curShipSpawnRate = originalShipSpawnRate;
+                        enemySpeed = originalEnemySpeed;
+
+                        start = null;
+
                         while(sceneHUD.children.length > 0){ 
                             sceneHUD.remove(sceneHUD.children[0]); 
                         }

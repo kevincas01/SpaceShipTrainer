@@ -7,3 +7,4 @@ https://stackoverflow.com/questions/31220969/three-js-raycast-from-camera-center
 https://threejs.org/docs/#api/en/lights/AmbientLight
 https://observablehq.com/@rveciana/three-js-object-moving-object-along-path
 https://bigsoundbank.com/detail-0477-wilhelm-scream.html
+https://stackoverflow.com/questions/52040914/resetting-the-value-of-timestamp-in-requestanimationframe
