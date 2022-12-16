@@ -17,6 +17,23 @@ import { AmbientLight, Box3,PlaneGeometry, OrthographicCamera,Mesh, WebGLRendere
 import { test } from 'objects';
 import {Ship} from 'objects';
 
+require('./components/sprites/space2.jpg');
+require('./components/sprites/red.png');
+require('./components/sprites/white.png');
+require('./components/sprites/blue.png');
+require('./components/sprites/space.jpg');
+require('./components/sprites/green_crosshair.png');
+
+require('./components/sounds/explosion.mp3');
+require('./components/sounds/gameOver.mp3');
+require('./components/sounds/shortLaser.mp3');
+require('./components/sounds/wilhelm.mp3');
+
+require('./components/models/ship1.glb');
+require('./components/models/ship2.glb');
+require('./components/models/ship3.glb');
+
+
 
 // create a div element
 var div = document.createElement("div");

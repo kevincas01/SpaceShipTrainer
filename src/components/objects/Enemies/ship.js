@@ -9,6 +9,7 @@ import {
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+
 class Ship extends Mesh {
     constructor(scene){
         // super(geometry, material);
