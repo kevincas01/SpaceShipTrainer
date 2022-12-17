@@ -23,9 +23,12 @@ module.exports = {
                 exclude: path.resolve(__dirname, './node_modules/'),
             },
             {
-                test: /\.(jpe?g|png|gif|svg|tga|gltf|babylon|mtl|pcb|pcd|prwm|obj|mat|mp3|ogg|glb)$/i,
-                use: 'file-loader',
+                test: /\.(jpe?g|png|gif|svg|tga|gltf|babylon|mtl|glb|pcb|pcd|prwm|obj|mat|mp3|bin|ogg)$/i,
                 exclude: path.resolve(__dirname, './node_modules/'),
+                type: 'asset/resource',
+                generator: {
+                  filename: '[path][name][ext][query]'
+                }
             },
             {
                 test: /\.(vert|frag|glsl|shader|txt)$/i,
@@ -55,3 +58,4 @@ module.exports = {
         new HtmlWebpackPlugin({ title: pkg.title, favicon: 'src/favicon.ico' }),
     ],
 };
+
