@@ -737,7 +737,7 @@ function onMouseDown(){
         }
         for (const sound of laserSounds) {
             
-            sound.play(); //Play all of them
+            sound.play();
         }
 
         const projectileRadius = 0.2;
